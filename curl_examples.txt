@@ -1,0 +1,49 @@
+# Curl Examples for Testing Image Processing Feature
+
+## 1. Test server status
+curl -X GET "http://localhost:8000/"
+
+## 2. Get all products (to see the new image structure)
+curl -X GET "http://localhost:8000/products/"
+
+## 3. Add a new product with image (replace 'path/to/image.jpg' with actual image path)
+curl -X POST "http://localhost:8000/add-product/" \
+  -H "Authorization: Bearer danishshaikh@06" \
+  -F "title=Test Product with Images" \
+  -F "price=29.99" \
+  -F "description=A test product with automatic image processing" \
+  -F "quantity=10" \
+  -F "category=test" \
+  -F "image=@path/to/image.jpg"
+
+## 4. Update product with new image (replace {product_id} with actual product ID)
+curl -X PUT "http://localhost:8000/update-product/{product_id}" \
+  -H "Authorization: Bearer danishshaikh@06" \
+  -F "title=Updated Product" \
+  -F "image=@path/to/new_image.jpg"
+
+## 5. Delete a product (replace {product_id} with actual product ID)
+curl -X DELETE "http://localhost:8000/delete-product/{product_id}" \
+  -H "Authorization: Bearer danishshaikh@06"
+
+## Expected Response Structure for Add/Update Product:
+# {
+#   "id": "uuid-string",
+#   "title": "Test Product with Images",
+#   "price": 29.99,
+#   "description": "A test product with automatic image processing",
+#   "quantity": 10,
+#   "category": "test",
+#   "image_url": "/images/main/uuid.jpg",  # Main image for backward compatibility
+#   "images": {
+#     "thumbnail": "/images/thumbnails/uuid.jpg",  # 200x200 square
+#     "main": "/images/main/uuid.jpg",             # 600x400 max
+#     "original": "/images/original/uuid.jpg"      # 800x600 max
+#   },
+#   "created_at": "2025-07-16T07:50:42.123456"
+# }
+
+## Image URLs can be accessed directly:
+# http://localhost:8000/images/thumbnails/uuid.jpg
+# http://localhost:8000/images/main/uuid.jpg
+# http://localhost:8000/images/original/uuid.jpg
