@@ -10,9 +10,194 @@ import json
 from datetime import datetime
 from PIL import Image
 import shutil
+import pymysql
+from pymysql import Error
+from dotenv import load_dotenv
+import logging
+from contextlib import contextmanager
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Database configuration
+DB_CONFIG = {
+    'host': os.getenv('host_name'),
+    'port': 3306,
+    'user': os.getenv('db_username'),
+    'password': os.getenv('db_password'),
+    'database': os.getenv('database_name'),
+    'charset': 'utf8mb4',
+    'autocommit': True,
+    'cursorclass': pymysql.cursors.DictCursor
+}
 
 # Initialize FastAPI app
 app = FastAPI(title="Trendyoft E-commerce Backend", version="1.0.0")
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Database connection management
+@contextmanager
+def get_db_connection():
+    """Context manager for database connections"""
+    connection = None
+    try:
+        connection = pymysql.connect(**DB_CONFIG)
+        logger.info("Database connection established")
+        yield connection
+    except Error as e:
+        logger.error(f"Database connection error: {e}")
+        if connection:
+            connection.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    finally:
+        if connection and connection.open:
+            connection.close()
+            logger.info("Database connection closed")
+
+# Database initialization
+def init_database():
+    """Initialize database tables with proper schema and foreign keys"""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Create customers table
+            create_customers_table = """
+            CREATE TABLE IF NOT EXISTS customers (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                first_name VARCHAR(100) NOT NULL,
+                last_name VARCHAR(100) NOT NULL,
+                phone_number VARCHAR(20) UNIQUE,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_email (email),
+                INDEX idx_phone (phone_number)
+            ) ENGINE=InnoDB;
+            """
+            
+            # Create products table
+            create_products_table = """
+            CREATE TABLE IF NOT EXISTS products (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                price DECIMAL(10, 2) NOT NULL,
+                quantity INT NOT NULL DEFAULT 0,
+                category VARCHAR(100) NOT NULL,
+                image_full_url VARCHAR(500),
+                image_main_url VARCHAR(500),
+                image_thumb_url VARCHAR(500),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                is_active BOOLEAN DEFAULT TRUE,
+                INDEX idx_category (category),
+                INDEX idx_title (title),
+                INDEX idx_is_active (is_active)
+            ) ENGINE=InnoDB;
+            """
+            
+            # Create shipping_addresses table
+            create_shipping_addresses_table = """
+            CREATE TABLE IF NOT EXISTS shipping_addresses (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                customer_id INT NOT NULL,
+                address_line1 VARCHAR(255) NOT NULL,
+                address_line2 VARCHAR(255),
+                city VARCHAR(100) NOT NULL,
+                country VARCHAR(100) NOT NULL,
+                zip_code VARCHAR(20) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+                INDEX idx_customer_id (customer_id)
+            ) ENGINE=InnoDB;
+            """
+            
+            # Create orders table
+            create_orders_table = """
+            CREATE TABLE IF NOT EXISTS orders (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                customer_id INT NOT NULL,
+                shipping_address_id INT NOT NULL,
+                status ENUM('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
+                total_amount DECIMAL(10, 2) NOT NULL,
+                order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+                FOREIGN KEY (shipping_address_id) REFERENCES shipping_addresses(id) ON DELETE RESTRICT,
+                INDEX idx_customer_id (customer_id),
+                INDEX idx_status (status),
+                INDEX idx_order_date (order_date)
+            ) ENGINE=InnoDB;
+            """
+            
+            # Create payment_details table
+            create_payment_details_table = """
+            CREATE TABLE IF NOT EXISTS payment_details (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                order_id INT NOT NULL,
+                payment_provider VARCHAR(50) NOT NULL,
+                payment_id VARCHAR(255) NOT NULL,
+                status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'pending',
+                currency VARCHAR(3) DEFAULT 'USD',
+                amount DECIMAL(10, 2) NOT NULL,
+                payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+                INDEX idx_order_id (order_id),
+                INDEX idx_payment_id (payment_id),
+                INDEX idx_status (status)
+            ) ENGINE=InnoDB;
+            """
+            
+            # Drop and recreate order_items table to fix foreign key constraint issues
+            drop_order_items_table = "DROP TABLE IF EXISTS order_items;"
+            
+            # Create order_items table (junction table for orders and products)
+            create_order_items_table = """
+            CREATE TABLE order_items (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                order_id INT NOT NULL,
+                product_id INT NOT NULL,
+                quantity INT NOT NULL,
+                price DECIMAL(10, 2) NOT NULL,
+                FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+                FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT,
+                INDEX idx_order_id (order_id),
+                INDEX idx_product_id (product_id)
+            ) ENGINE=InnoDB;
+            """
+            
+            # Execute table creation queries in correct order for foreign keys
+            tables = [
+                ("customers", create_customers_table),
+                ("products", create_products_table),
+                ("shipping_addresses", create_shipping_addresses_table),
+                ("orders", create_orders_table),
+                ("payment_details", create_payment_details_table)
+            ]
+            
+            for table_name, query in tables:
+                cursor.execute(query)
+                logger.info(f"Table {table_name} created/verified successfully")
+            
+            # TODO: Fix order_items table foreign key constraint issue later
+            # cursor.execute(drop_order_items_table)
+            # cursor.execute(create_order_items_table)
+            # logger.info("Table order_items created/verified successfully")
+            
+            conn.commit()
+            logger.info("Database initialization completed successfully")
+            
+    except Error as e:
+        logger.error(f"Error initializing database: {e}")
+        raise
+
+# Initialize database on startup
+try:
+    init_database()
+except Exception as e:
+    logger.error(f"Failed to initialize database: {e}")
 
 # CORS middleware to allow frontend access
 app.add_middleware(
@@ -43,11 +228,182 @@ ADMIN_TOKEN = "danishshaikh@06"  # Change this to your actual admin token
 # Security scheme
 security = HTTPBearer()
 
-# In-memory product storage (you can replace this with a JSON file if needed)
+# Database helper functions
+def get_products_from_db():
+    """Fetch all products from database"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id, title, description, price, quantity, category, 
+                   image_full_url, image_main_url, image_thumb_url, 
+                   created_at, updated_at, is_active 
+            FROM products 
+            WHERE is_active = TRUE 
+            ORDER BY created_at DESC
+        """)
+        return cursor.fetchall()
+
+def get_product_by_id(product_id: int):
+    """Fetch a single product by ID from database"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id, title, description, price, quantity, category, 
+                   image_full_url, image_main_url, image_thumb_url, 
+                   created_at, updated_at, is_active 
+            FROM products 
+            WHERE id = %s AND is_active = TRUE
+        """, (product_id,))
+        return cursor.fetchone()
+
+def insert_product_to_db(product_data):
+    """Insert a new product into database"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        insert_query = """
+            INSERT INTO products (title, description, price, quantity, category, 
+                                image_full_url, image_main_url, image_thumb_url) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+            product_data['title'],
+            product_data['description'],
+            product_data['price'],
+            product_data['quantity'],
+            product_data['category'],
+            product_data['image_full_url'],
+            product_data['image_main_url'],
+            product_data['image_thumb_url']
+        ))
+        conn.commit()
+        return cursor.lastrowid
+
+def update_product_in_db(product_id: int, product_data):
+    """Update a product in database"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        
+        # Build dynamic update query based on provided data
+        update_fields = []
+        values = []
+        
+        for field, value in product_data.items():
+            if value is not None:
+                update_fields.append(f"{field} = %s")
+                values.append(value)
+        
+        if update_fields:
+            values.append(product_id)
+            update_query = f"UPDATE products SET {', '.join(update_fields)} WHERE id = %s"
+            cursor.execute(update_query, values)
+            conn.commit()
+            return cursor.rowcount > 0
+        return False
+
+def delete_product_from_db(product_id: int):
+    """Soft delete a product (set is_active = FALSE)"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE products SET is_active = FALSE WHERE id = %s", (product_id,))
+        conn.commit()
+        return cursor.rowcount > 0
+
+def get_categories_from_db():
+    """Get category statistics from database"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT category, 
+                   COUNT(*) as count,
+                   COUNT(*) as total_products,
+                   SUM(CASE WHEN quantity > 0 THEN 1 ELSE 0 END) as in_stock,
+                   SUM(CASE WHEN quantity = 0 THEN 1 ELSE 0 END) as out_of_stock
+            FROM products 
+            WHERE is_active = TRUE 
+            GROUP BY category 
+            ORDER BY count DESC
+        """)
+        categories = cursor.fetchall()
+        
+        # Format for compatibility with existing API
+        formatted_categories = []
+        for cat in categories:
+            formatted_categories.append({
+                'name': cat['category'],
+                'count': cat['count'],
+                'total_products': cat['total_products'],
+                'in_stock': cat['in_stock'],
+                'out_of_stock': cat['out_of_stock']
+            })
+        
+        return formatted_categories
+
+# Customer management functions
+def insert_customer_to_db(customer_data):
+    """Insert a new customer into database"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        insert_query = """
+            INSERT INTO customers (first_name, last_name, phone_number, email) 
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+            customer_data['first_name'],
+            customer_data['last_name'],
+            customer_data.get('phone_number'),
+            customer_data['email']
+        ))
+        conn.commit()
+        return cursor.lastrowid
+
+def get_customer_by_email(email: str):
+    """Get customer by email"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM customers WHERE email = %s", (email,))
+        return cursor.fetchone()
+
+# Order management functions
+def create_order_in_db(order_data):
+    """Create a new order with order items"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        
+        # Insert order
+        insert_order_query = """
+            INSERT INTO orders (customer_id, shipping_address_id, status, total_amount) 
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(insert_order_query, (
+            order_data['customer_id'],
+            order_data['shipping_address_id'],
+            order_data.get('status', 'pending'),
+            order_data['total_amount']
+        ))
+        order_id = cursor.lastrowid
+        
+        # Insert order items
+        if 'items' in order_data:
+            insert_item_query = """
+                INSERT INTO order_items (order_id, product_id, quantity, price) 
+                VALUES (%s, %s, %s, %s)
+            """
+            for item in order_data['items']:
+                cursor.execute(insert_item_query, (
+                    order_id,
+                    item['product_id'],
+                    item['quantity'],
+                    item['price']
+                ))
+        
+        conn.commit()
+        return order_id
+
+# Legacy support - keeping products_db for backward compatibility during transition
 products_db = []
 
 # Initialize with some sample products
-'''sample_products = [
+sample_products = [
     {
         "id": str(uuid.uuid4()),
         "title": "Striped Adventure Tee",
@@ -112,7 +468,7 @@ products_db = []
 
 # Load sample products on startup
 if not products_db:
-    products_db.extend(sample_products)'''
+    products_db.extend(sample_products)
 
 # Pydantic models
 class ProductImages(BaseModel):
@@ -121,7 +477,7 @@ class ProductImages(BaseModel):
     original: str  # 800x600 original/zoom image
 
 class Product(BaseModel):
-    id: str
+    id: int
     title: str
     price: float
     description: str
@@ -130,9 +486,11 @@ class Product(BaseModel):
     image_url: str  # Keep for backward compatibility
     images: ProductImages  # New multi-size images
     created_at: str
+    updated_at: Optional[str] = None
+    is_active: bool = True
 
 class ProductResponse(BaseModel):
-    id: str
+    id: int
     title: str
     price: float
     description: str
@@ -141,6 +499,51 @@ class ProductResponse(BaseModel):
     image_url: str  # Keep for backward compatibility
     images: ProductImages  # New multi-size images
     created_at: str
+    updated_at: Optional[str] = None
+    is_active: bool = True
+
+# Additional models for database operations
+class CustomerCreate(BaseModel):
+    first_name: str
+    last_name: str
+    phone_number: Optional[str] = None
+    email: str
+
+class CustomerResponse(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    phone_number: Optional[str]
+    email: str
+    created_at: str
+
+class ShippingAddressCreate(BaseModel):
+    customer_id: int
+    address_line1: str
+    address_line2: Optional[str] = None
+    city: str
+    country: str
+    zip_code: str
+
+class OrderItem(BaseModel):
+    product_id: int
+    quantity: int
+    price: float
+
+class OrderCreate(BaseModel):
+    customer_id: int
+    shipping_address_id: int
+    items: List[OrderItem]
+    total_amount: float
+    status: Optional[str] = "pending"
+
+class OrderResponse(BaseModel):
+    id: int
+    customer_id: int
+    shipping_address_id: int
+    status: str
+    total_amount: float
+    order_date: str
 
 # Admin authentication
 def verify_admin_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -310,15 +713,54 @@ async def root():
 @app.get("/products/", response_model=List[ProductResponse])
 async def get_products():
     """Get all products - Public endpoint for frontend"""
-    return products_db
+    try:
+        products = get_products_from_db()
+        # Format products to match expected response
+        formatted_products = []
+        for product in products:
+            formatted_product = {
+                **product,
+                'image_url': product.get('image_main_url', ''),  # Backward compatibility
+                'images': {
+                    'thumbnail': product.get('image_thumb_url', ''),
+                    'main': product.get('image_main_url', ''),
+                    'original': product.get('image_full_url', '')
+                },
+                'created_at': product['created_at'].isoformat() if product.get('created_at') else '',
+                'updated_at': product['updated_at'].isoformat() if product.get('updated_at') else None
+            }
+            formatted_products.append(formatted_product)
+        return formatted_products
+    except Exception as e:
+        logger.error(f"Error fetching products: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching products")
 
 @app.get("/products/{product_id}", response_model=ProductResponse)
-async def get_product(product_id: str):
+async def get_product(product_id: int):
     """Get a specific product by ID - Public endpoint"""
-    product = next((p for p in products_db if p["id"] == product_id), None)
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    return product
+    try:
+        product = get_product_by_id(product_id)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        # Format product to match expected response
+        formatted_product = {
+            **product,
+            'image_url': product.get('image_main_url', ''),  # Backward compatibility
+            'images': {
+                'thumbnail': product.get('image_thumb_url', ''),
+                'main': product.get('image_main_url', ''),
+                'original': product.get('image_full_url', '')
+            },
+            'created_at': product['created_at'].isoformat() if product.get('created_at') else '',
+            'updated_at': product['updated_at'].isoformat() if product.get('updated_at') else None
+        }
+        return formatted_product
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching product {product_id}: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching product")
 
 @app.post("/add-product/", response_model=ProductResponse)
 async def add_product(
@@ -338,33 +780,60 @@ async def add_product(
     if quantity < 0:
         raise HTTPException(status_code=400, detail="Quantity cannot be negative")
     
-# Save image and generate multiple sizes
+    # Save image and generate multiple sizes
     try:
         image_urls = save_uploaded_image_with_sizes(image)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error saving image: {str(e)}")
     
-    # Create new product
-    new_product = {
-        "id": str(uuid.uuid4()),
+    # Prepare product data for database
+    product_data = {
         "title": title,
-        "price": price,
         "description": description,
+        "price": price,
         "quantity": quantity,
         "category": category,
-        "image_url": image_urls["main"],  # Keep for backward compatibility
-        "images": image_urls,  # New field with multiple sizes
-        "created_at": datetime.now().isoformat()
+        "image_full_url": image_urls["original"],
+        "image_main_url": image_urls["main"],
+        "image_thumb_url": image_urls["thumbnail"]
     }
     
-    # Add to database
-    products_db.append(new_product)
-    
-    return new_product
+    try:
+        # Insert product into database
+        product_id = insert_product_to_db(product_data)
+        
+        # Fetch the created product to return
+        created_product = get_product_by_id(product_id)
+        if not created_product:
+            raise HTTPException(status_code=500, detail="Failed to retrieve created product")
+        
+        # Format response
+        formatted_product = {
+            **created_product,
+            'image_url': created_product.get('image_main_url', ''),  # Backward compatibility
+            'images': {
+                'thumbnail': created_product.get('image_thumb_url', ''),
+                'main': created_product.get('image_main_url', ''),
+                'original': created_product.get('image_full_url', '')
+            },
+            'created_at': created_product['created_at'].isoformat() if created_product.get('created_at') else '',
+            'updated_at': created_product['updated_at'].isoformat() if created_product.get('updated_at') else None
+        }
+        
+        return formatted_product
+        
+    except Exception as e:
+        logger.error(f"Error creating product: {e}")
+        # Clean up uploaded images on error
+        try:
+            delete_image_files(image_urls)
+        except:
+            pass
+        raise HTTPException(status_code=500, detail="Error creating product")
 
 @app.put("/update-product/{product_id}", response_model=ProductResponse)
 async def update_product(
-    product_id: str,
+    product_id: int,
     title: Optional[str] = Form(None),
     price: Optional[float] = Form(None),
     description: Optional[str] = Form(None),
@@ -375,26 +844,73 @@ async def update_product(
 ):
     """Update an existing product - Admin only"""
     
-    # Find product
-    product = next((p for p in products_db if p["id"] == product_id), None)
-    if not product:
+    # Fetch existing product
+    existing_product = get_product_by_id(product_id)
+    if not existing_product:
         raise HTTPException(status_code=404, detail="Product not found")
+
+    # Validate input
+    if price is not None and price <= 0:
+        raise HTTPException(status_code=400, detail="Price must be positive")
+    if quantity is not None and quantity < 0:
+        raise HTTPException(status_code=400, detail="Quantity cannot be negative")
+
+    # Prepare update data
+    update_data = {
+        "title": title,
+        "description": description,
+        "price": price,
+        "quantity": quantity,
+        "category": category
+    }
+
+    # Update image if provided
+    if image is not None:
+        try:
+            # Delete old images (all sizes)
+            if "images" in existing_product:
+                delete_image_files(existing_product["images"])
+            else:
+                # Legacy support for old single images
+                delete_image_file(existing_product["image_url"])
+            
+            # Save new image in multiple sizes
+            image_urls = save_uploaded_image_with_sizes(image)
+            update_data.update({
+                "image_full_url": image_urls["original"],
+                "image_main_url": image_urls["main"],
+                "image_thumb_url": image_urls["thumbnail"]
+            })
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Error updating image: {str(e)}")
     
-    # Update fields if provided
-    if title is not None:
-        product["title"] = title
-    if price is not None:
-        if price <= 0:
-            raise HTTPException(status_code=400, detail="Price must be positive")
-        product["price"] = price
-    if description is not None:
-        product["description"] = description
-    if quantity is not None:
-        if quantity < 0:
-            raise HTTPException(status_code=400, detail="Quantity cannot be negative")
-        product["quantity"] = quantity
-    if category is not None:
-        product["category"] = category
+    # Update product in database
+    try:
+        if not update_product_in_db(product_id, {k: v for k, v in update_data.items() if v is not None}):
+            raise HTTPException(status_code=500, detail="Failed to update product")
+
+        # Fetch updated product
+        updated_product = get_product_by_id(product_id)
+        if not updated_product:
+            raise HTTPException(status_code=500, detail="Failed to retrieve updated product")
+
+        # Format response
+        formatted_product = {
+            **updated_product,
+            'image_url': updated_product.get('image_main_url', ''),  # Backward compatibility
+            'images': {
+                'thumbnail': updated_product.get('image_thumb_url', ''),
+                'main': updated_product.get('image_main_url', ''),
+                'original': updated_product.get('image_full_url', '')
+            },
+            'created_at': updated_product['created_at'].isoformat() if updated_product.get('created_at') else '',
+            'updated_at': updated_product['updated_at'].isoformat() if updated_product.get('updated_at') else None
+        }
+
+        return formatted_product
+    except Exception as e:
+        logger.error(f"Error updating product {product_id}: {e}")
+        raise HTTPException(status_code=500, detail="Error updating product")
     
     # Update image if provided
     if image is not None:
@@ -417,68 +933,44 @@ async def update_product(
 
 @app.delete("/delete-product/{product_id}")
 async def delete_product(
-    product_id: str,
+    product_id: int,
     token: str = Depends(verify_admin_token)
 ):
     """Delete a product - Admin only"""
     
-    # Find product
-    product_index = next((i for i, p in enumerate(products_db) if p["id"] == product_id), None)
-    if product_index is None:
-        raise HTTPException(status_code=404, detail="Product not found")
-    
-    # Get product data before deletion
-    product = products_db[product_index]
-    
-    # Delete image files (all sizes)
-    if "images" in product:
-        delete_image_files(product["images"])
-    else:
-        # Legacy support for old single images
-        delete_image_file(product["image_url"])
-    
-    # Remove from database
-    products_db.pop(product_index)
-    
-    return {"message": f"Product '{product['title']}' deleted successfully"}
+    # Delete product from database
+    try:
+        if not delete_product_from_db(product_id):
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        return {"message": f"Product with ID {product_id} deleted successfully"}
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error deleting product {product_id}: {e}")
+        raise HTTPException(status_code=500, detail="Error deleting product")
 
 @app.get("/categories/")
 async def get_categories():
     """Get all unique categories with metadata - Public endpoint"""
-    if not products_db:
-        return {"categories": []}
-    
-    category_stats = {}
-    
-    # Count products and calculate stats for each category
-    for product in products_db:
-        category = product["category"].lower()
-        if category not in category_stats:
-            category_stats[category] = {
-                "name": product["category"],  # Keep original case
-                "count": 0,
-                "total_products": 0,
-                "in_stock": 0,
-                "out_of_stock": 0
-            }
+    try:
+        categories = get_categories_from_db()
         
-        category_stats[category]["count"] += 1
-        category_stats[category]["total_products"] += 1
+        if not categories:
+            return {"categories": []}
         
-        if product["quantity"] > 0:
-            category_stats[category]["in_stock"] += 1
-        else:
-            category_stats[category]["out_of_stock"] += 1
-    
-    # Convert to list and sort by product count (most popular first)
-    categories_list = list(category_stats.values())
-    categories_list.sort(key=lambda x: x["count"], reverse=True)
-    
-    return {
-        "categories": categories_list,
-        "total_categories": len(categories_list),
-        "all_products_count": len(products_db)
-    }
+        total_products = sum(cat['total_products'] for cat in categories)
+        
+        return {
+            "categories": categories,
+            "total_categories": len(categories),
+            "all_products_count": total_products
+        }
+    except Exception as e:
+        logger.error(f"Error fetching categories: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching categories")
 
 @app.get("/products/category/{category}", response_model=List[ProductResponse])
 async def get_products_by_category(category: str):
@@ -573,4 +1065,4 @@ def load_products_from_file():
 # Run the server
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

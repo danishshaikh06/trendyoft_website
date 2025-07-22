@@ -390,6 +390,8 @@ body {
     background-repeat: no-repeat;
     position: relative;
     overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
 }
 
 /* Optimize for actual uploaded images */
@@ -399,10 +401,18 @@ body {
     object-fit: cover;
     object-position: center;
     transition: transform 0.3s ease;
+    border-radius: 8px;
 }
 
 .product-image:hover img {
     transform: scale(1.05);
+}
+
+/* Ensure background images also fit properly */
+.product-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .product-1 {
@@ -1711,10 +1721,23 @@ body {
     background-repeat: no-repeat;
     cursor: pointer;
     transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 .main-product-image:hover {
     transform: scale(1.02);
+}
+
+/* For actual image elements in product details */
+.main-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 12px;
 }
 
 .product-info {
@@ -1956,27 +1979,8 @@ html {
     border: 1px solid #e5e7eb;
 }
 
-.main-product-image {
-    width: 100%;
-    height: 400px;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    position: relative;
-    overflow: hidden;
-}
-
-.main-product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    transition: transform 0.3s ease;
-}
-
-.main-product-image:hover img {
-    transform: scale(1.05);
-}
+/* Main product image styling - consolidated above */
+/* This duplicate section has been merged with the main styling */
 
 .product-info {
     padding: 1rem 0;

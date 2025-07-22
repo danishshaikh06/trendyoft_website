@@ -1,0 +1,27 @@
+# Ignore Python cache, env, and build files
+__pycache__/
+*.py[cod]
+*.env
+*.DS_Store
+*.egg-info
+*.pytest_cache/
+build/
+dist/
+
+# Ignore any images not included in source
+images/**/*.jpg
+images/**/*.jpeg
+images/**/*.png
+
+# Exclude static files for local use only
+generate_static_site.py
+static_products.js
+
+# Ignore version control
+.git/
+.gitignore
+
+# Ignore Docker files and config
+Dockerfile
+docker-compose.yml
+

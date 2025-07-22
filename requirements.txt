@@ -1,5 +1,31 @@
+# Trendyoft E-commerce Backend API Necessary Dependencies
+
+# FastAPI framework and server
 fastapi==0.104.1
-uvicorn==0.24.0
-python-multipart==0.0.6
+uvicorn[standard]==0.24.0
+
+# Database connectivity
+mysql-connector-python==8.2.0
+python-dotenv==1.0.0
+
+# Image processing
 Pillow==10.1.0
+
+# HTTP client for testing
+requests==2.31.0
+
+# Security and authentication
+python-multipart==0.0.6
+
+# Data validation
 pydantic==2.5.0
+typing-extensions>=4.12.0
+
+# Development and testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# Environment and configuration
+python-dotenv==1.0.0
+
+# Note: Ensure Python 3.11.9 compatibility
