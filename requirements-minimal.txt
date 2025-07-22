@@ -1,12 +1,8 @@
-# Minimal requirements for hosting deployment
-# Use this if the main requirements.txt fails
-
 fastapi
-uvicorn[standard]
+uvicorn
 PyMySQL
 python-dotenv
 Pillow
 requests
 python-multipart
 pydantic
-typing-extensions
