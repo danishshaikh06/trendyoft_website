@@ -28,20 +28,20 @@ body {
     top: 0;
     width: 100%;
     z-index: 1000;
-    padding: 1rem 0;
+    padding: 0.6rem 0;
     box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.1),
-        0 2px 8px rgba(0, 0, 0, 0.05);
+        0 4px 20px rgba(0, 0, 0, 0.08),
+        0 1px 4px rgba(0, 0, 0, 0.04);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar.scrolled {
-    padding: 0.75rem 0;
+    padding: 0.5rem 0;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(25px) saturate(200%);
     box-shadow: 
-        0 10px 40px rgba(0, 0, 0, 0.15),
-        0 4px 12px rgba(0, 0, 0, 0.1);
+        0 6px 25px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .nav-container {
@@ -55,7 +55,7 @@ body {
 
 /* Enhanced Brand Logo */
 .nav-brand {
-    font-size: 1.75rem;
+    font-size: 1.4rem;
     font-weight: 800;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #059669 100%);
     background-size: 200% 200%;
@@ -93,7 +93,7 @@ body {
 /* Enhanced Navigation Menu */
 .nav-menu {
     display: flex;
-    gap: 2.5rem;
+    gap: 1.8rem;
     align-items: center;
 }
 
@@ -101,11 +101,11 @@ body {
     text-decoration: none;
     color: #4b5563;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
+    padding: 0.5rem 0.8rem;
+    border-radius: 10px;
     overflow: hidden;
 }
 
@@ -164,7 +164,7 @@ body {
 /* Enhanced Action Buttons */
 .nav-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     align-items: center;
 }
 
@@ -172,19 +172,19 @@ body {
 .cart-btn {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border: 1px solid rgba(102, 126, 234, 0.2);
-    font-size: 1.1rem;
+    font-size: 1rem;
     cursor: pointer;
-    padding: 0.75rem;
-    border-radius: 12px;
+    padding: 0.6rem;
+    border-radius: 10px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    min-width: 44px;
-    height: 44px;
+    min-width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .search-btn::before,
@@ -287,7 +287,7 @@ body {
 .page {
     display: none;
     min-height: 100vh;
-    padding-top: 80px;
+    padding-top: 70px;
 }
 
 .page.active {
@@ -1683,7 +1683,7 @@ body {
 /* Enhanced Responsive Design */
 @media (max-width: 768px) {
     .navbar {
-        padding: 0.75rem 0;
+        padding: 0.5rem 0;
     }
     
     .nav-container {
@@ -1691,23 +1691,24 @@ body {
     }
     
     .nav-menu {
-        gap: 1.5rem;
+        gap: 1.2rem;
     }
     
     .nav-brand {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
     }
     
     .nav-link {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
     }
     
     .search-btn,
     .cart-btn {
-        min-width: 40px;
-        height: 40px;
-        padding: 0.65rem;
+        min-width: 34px;
+        height: 34px;
+        padding: 0.5rem;
+        font-size: 0.9rem;
     }
     
     .cart-count {
@@ -1868,7 +1869,7 @@ body {
 
 @media (max-width: 480px) {
     .navbar {
-        padding: 0.65rem 0;
+        padding: 0.4rem 0;
     }
     
     .nav-container {
@@ -1880,7 +1881,7 @@ body {
     }
     
     .nav-brand {
-        font-size: 1.3rem;
+        font-size: 1.15rem;
     }
     
     .nav-brand::after {
@@ -1893,18 +1894,18 @@ body {
     
     .search-btn,
     .cart-btn {
-        min-width: 36px;
-        height: 36px;
-        padding: 0.5rem;
-        font-size: 1rem;
+        min-width: 32px;
+        height: 32px;
+        padding: 0.4rem;
+        font-size: 0.85rem;
     }
     
     .cart-count {
-        min-width: 16px;
-        height: 16px;
-        font-size: 0.65rem;
-        top: -4px;
-        right: -4px;
+        min-width: 14px;
+        height: 14px;
+        font-size: 0.6rem;
+        top: -3px;
+        right: -3px;
     }
     
     .hero-content h1 {
