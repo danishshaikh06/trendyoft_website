@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-PyMySQL
-python-dotenv
-Pillow
-requests
-python-multipart
-pydantic

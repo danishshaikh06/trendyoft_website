@@ -22,7 +22,7 @@ load_dotenv()
 # Database configuration
 DB_CONFIG = {
     'host': os.getenv('host_name'),
-    'port': 3306,
+    'port': int(os.getenv('db_port', 3306)),  # Use Railway port from .env
     'user': os.getenv('db_username'),
     'password': os.getenv('db_password'),
     'database': os.getenv('database_name'),
@@ -1065,4 +1065,4 @@ def load_products_from_file():
 # Run the server
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(app, host="127.0.0.1", port=8000, reload=False)
