@@ -496,7 +496,7 @@ body {
 }
 
 .main-title {
-    font-size: clamp(3rem, 8vw, 6rem);
+    font-size: clamp(2.5rem, 5vw, 4rem) !important;
     font-weight: 800;
     line-height: 1.1;
     margin-bottom: 1.5rem;
@@ -575,13 +575,19 @@ body {
 }
 
 /* Responsive design for hero section */
+@media (min-width: 1400px) {
+    .main-title {
+        font-size: 3.5rem !important;
+    }
+}
+
 @media (max-width: 768px) {
     .shape {
         display: none;
     }
     
     .main-title {
-        font-size: clamp(2.5rem, 10vw, 4rem);
+        font-size: clamp(2rem, 8vw, 3rem) !important;
     }
     
     .subtitle {
@@ -1722,8 +1728,9 @@ body {
         right: -6px;
     }
     
+    .main-title,
     .hero-content h1 {
-        font-size: 2rem;
+        font-size: 2rem !important;
     }
     
     .checkout-container {
@@ -1911,8 +1918,9 @@ body {
         right: -3px;
     }
     
+    .main-title,
     .hero-content h1 {
-        font-size: 1.5rem;
+        font-size: 1.5rem !important;
     }
     
     .hero {
