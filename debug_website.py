@@ -6,7 +6,7 @@ This script helps troubleshoot common issues with the website
 
 import requests
 import json
-import sys
+import os
 
 def test_api_endpoint(url, endpoint_name):
     """Test an API endpoint and return results"""
@@ -44,7 +44,7 @@ def main():
     print("🚀 Trendyoft Website Debug Tool")
     print("=" * 40)
     
-    base_url = "http://127.0.0.1:8000"
+    base_url = os.getenv("BASE_URL", "http://127.0.0.1:8000")
     
     # Test server is running
     print(f"\n🏠 Testing server at {base_url}...")
