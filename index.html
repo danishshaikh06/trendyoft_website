@@ -976,7 +976,9 @@
                 }
                 
                 // Format price properly
-                const formattedPrice = typeof product.price === 'number' ? product.price.toFixed(2) : '0.00';
+                const priceDisplay = (product.price && product.price > 0) 
+                    ? `<span class="price-current">₹${product.price.toFixed(2)}</span>`
+                    : `<span class="contact-price" style="color: #888; font-style: italic;">Contact for Price</span>`;
                 
                 return `
                 <div class="product-card modern">
@@ -1005,7 +1007,7 @@
                         </div>
                         <div class="product-footer">
                             <div class="price-section">
-                                <span class="price-current">₹${formattedPrice}</span>
+                                ${priceDisplay}
                             </div>
                             <button class="add-to-cart modern" onclick="addToCartFromHome('${product.name}', ${product.price})">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1199,16 +1201,22 @@
                 } else {
                     noProductsDiv.style.display = 'none';
                     
-                    const productsHTML = filteredProducts.map(product => `
+                    const productsHTML = filteredProducts.map(product => {
+                        const priceDisplay = (product.price && product.price > 0) 
+                            ? `<p class="price">Rs. ${product.price.toFixed(2)}</p>`
+                            : `<p style="color: #888; font-style: italic;">Contact for Price</p>`;
+                        
+                        return `
                         <div class="product-card">
                             <div class="product-image ${product.image}" onclick="viewProductDetails('${product.name}')" style="background-image: url('${product.imageUrl || ''}')"></div>
                             <h3 onclick="viewProductDetails('${product.name}')">${product.name}</h3>
-                            <p class="price">Rs. ${product.price.toFixed(2)}</p>
+                            ${priceDisplay}
                             <button class="add-to-cart" onclick="addToCartFromShop('${product.name}', ${product.price})">
                                 Add to Cart
                             </button>
                         </div>
-                    `).join('');
+                        `;
+                    }).join('');
                     
                     shopProductsGrid.innerHTML = productsHTML;
                 }
@@ -1300,7 +1308,18 @@
                 
                 // Set product info
                 document.getElementById('product-title').textContent = product.name;
-                document.getElementById('product-price').textContent = `Rs. ${product.price.toFixed(2)}`;
+                
+                // Handle price display conditionally
+                const productPriceElement = document.getElementById('product-price');
+                if (product.price && product.price > 0) {
+                    productPriceElement.textContent = `Rs. ${product.price.toFixed(2)}`;
+                    productPriceElement.style.color = '';
+                    productPriceElement.style.fontStyle = '';
+                } else {
+                    productPriceElement.textContent = 'Contact for Price';
+                    productPriceElement.style.color = '#888';
+                    productPriceElement.style.fontStyle = 'italic';
+                }
                 
                 // Use API description or fallback
                 const productDescription = product.description || `Discover the exceptional quality of ${product.name}. Crafted with premium materials for ultimate comfort and style.`;
