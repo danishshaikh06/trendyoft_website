@@ -1,5 +1,5 @@
 
-/* Reset and Base Styles */
+/* Reset and Base Styles - Updated 2025-07-25-09:08 */
 * {
     margin: 0;
     padding: 0;
@@ -1969,10 +1969,10 @@ body {
         gap: 0.25rem;
     }
     
-    /* Shop page mobile styles */
+    /* Shop page mobile styles - Force same as desktop */
     .shop-products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        gap: 0.75rem !important;
     }
     
     .filter-container {
@@ -2010,8 +2010,8 @@ body {
 /* Extra small mobile devices */
 @media (max-width: 360px) {
     .shop-products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
-        gap: 0.75rem;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+        gap: 0.5rem !important;
     }
     
     .product-card {
