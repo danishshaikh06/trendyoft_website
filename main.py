@@ -211,7 +211,13 @@ except Exception as e:
 # CORS middleware to allow frontend access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],  # Allow your frontend URL
+    allow_origins=[
+        "https://trendyoft-website.vercel.app",
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000", 
+        "http://127.0.0.1:8000",
+        "*"  # Allow all origins for development
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
