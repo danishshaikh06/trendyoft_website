@@ -27,8 +27,11 @@ DB_CONFIG = {
     'password': os.getenv('db_password'),
     'database': os.getenv('database_name'),
     'charset': 'utf8mb4',
-    'autocommit': True,
-    'cursorclass': pymysql.cursors.DictCursor
+    'autocommit': False,  # Changed to False for better transaction control
+    'cursorclass': pymysql.cursors.DictCursor,
+    'connect_timeout': 60,
+    'read_timeout': 60,
+    'write_timeout': 60
 }
 
 # Initialize FastAPI app
@@ -50,12 +53,18 @@ def get_db_connection():
     except Error as e:
         logger.error(f"Database connection error: {e}")
         if connection:
-            connection.rollback()
+            try:
+                connection.rollback()
+            except:
+                pass
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     finally:
-        if connection and connection.open:
-            connection.close()
-            logger.info("Database connection closed")
+        if connection:
+            try:
+                connection.close()
+                logger.info("Database connection closed")
+            except:
+                logger.warning("Error closing database connection")
 
 # Database initialization
 def init_database():
@@ -84,7 +93,7 @@ def init_database():
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 title VARCHAR(255) NOT NULL,
                 description TEXT,
-                price DECIMAL(10, 2) NOT NULL,
+                price DECIMAL(15, 2) NOT NULL,
                 quantity INT NOT NULL DEFAULT 0,
                 category VARCHAR(100) NOT NULL,
                 image_full_url VARCHAR(500),
@@ -221,6 +230,9 @@ for directory in [IMAGES_DIR, THUMBNAIL_DIR, MAIN_DIR, ORIGINAL_DIR]:
 
 # Mount static files for serving images
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
+
+# Mount static files for serving the website
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 # Admin token for protected operations
 ADMIN_TOKEN = "danishshaikh@06"  # Change this to your actual admin token
@@ -472,9 +484,9 @@ if not products_db:
 
 # Pydantic models
 class ProductImages(BaseModel):
-    thumbnail: str  # 200x200 square thumbnail
-    main: str      # 600x400 main product image
-    original: str  # 800x600 original/zoom image
+    thumbnail: str = ""  # 200x200 square thumbnail
+    main: str = ""      # 600x400 main product image
+    original: str = ""  # 800x600 original/zoom image
 
 class Product(BaseModel):
     id: int
@@ -483,7 +495,7 @@ class Product(BaseModel):
     description: str
     quantity: int
     category: str
-    image_url: str  # Keep for backward compatibility
+    image_url: str = ""  # Keep for backward compatibility
     images: ProductImages  # New multi-size images
     created_at: str
     updated_at: Optional[str] = None
@@ -496,7 +508,7 @@ class ProductResponse(BaseModel):
     description: str
     quantity: int
     category: str
-    image_url: str  # Keep for backward compatibility
+    image_url: str = ""  # Keep for backward compatibility
     images: ProductImages  # New multi-size images
     created_at: str
     updated_at: Optional[str] = None
@@ -697,9 +709,21 @@ def delete_image_file(image_url: str):
 
 # API Endpoints
 
+from fastapi.responses import FileResponse
+
 @app.get("/")
-async def root():
-    """Root endpoint with API information"""
+async def serve_website():
+    """Serve the main website"""
+    return FileResponse('index.html')
+
+@app.get("/style.css")
+async def serve_css():
+    """Serve the CSS file"""
+    return FileResponse('style.css', media_type='text/css')
+
+@app.get("/api")
+async def api_info():
+    """API information endpoint"""
     return {
         "message": "Trendyoft E-commerce Backend API",
         "version": "1.0.0",
@@ -718,13 +742,18 @@ async def get_products():
         # Format products to match expected response
         formatted_products = []
         for product in products:
+            # Handle NULL image values by providing empty strings as fallback
+            image_main = product.get('image_main_url') or ''
+            image_thumb = product.get('image_thumb_url') or ''
+            image_full = product.get('image_full_url') or ''
+            
             formatted_product = {
                 **product,
-                'image_url': product.get('image_main_url', ''),  # Backward compatibility
+                'image_url': image_main,  # Backward compatibility
                 'images': {
-                    'thumbnail': product.get('image_thumb_url', ''),
-                    'main': product.get('image_main_url', ''),
-                    'original': product.get('image_full_url', '')
+                    'thumbnail': image_thumb,
+                    'main': image_main,
+                    'original': image_full
                 },
                 'created_at': product['created_at'].isoformat() if product.get('created_at') else '',
                 'updated_at': product['updated_at'].isoformat() if product.get('updated_at') else None
@@ -743,14 +772,19 @@ async def get_product(product_id: int):
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
         
+        # Handle NULL image values by providing empty strings as fallback
+        image_main = product.get('image_main_url') or ''
+        image_thumb = product.get('image_thumb_url') or ''
+        image_full = product.get('image_full_url') or ''
+        
         # Format product to match expected response
         formatted_product = {
             **product,
-            'image_url': product.get('image_main_url', ''),  # Backward compatibility
+            'image_url': image_main,  # Backward compatibility
             'images': {
-                'thumbnail': product.get('image_thumb_url', ''),
-                'main': product.get('image_main_url', ''),
-                'original': product.get('image_full_url', '')
+                'thumbnail': image_thumb,
+                'main': image_main,
+                'original': image_full
             },
             'created_at': product['created_at'].isoformat() if product.get('created_at') else '',
             'updated_at': product['updated_at'].isoformat() if product.get('updated_at') else None
