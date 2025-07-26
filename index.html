@@ -505,63 +505,99 @@
     <!-- Product Details Page -->
     <section id="product-details" class="page">
         <div class="container">
-            <div class="product-details-container">
-                <div class="product-navigation">
-                    <button class="back-btn" onclick="goBackToShop()">← Back to Shop</button>
+            <div class="product-page-container">
+                <!-- IMAGE SECTION -->
+                <div class="product-image-section">
+                    <div class="main-product-image" id="product-main-image" style="background-image: url();"></div>
                 </div>
-                
-                <div class="product-main">
-                    <div class="product-image-large">
-                        <div id="product-main-image" class="main-product-image"></div>
+                <!-- PRODUCT DETAILS SECTION -->
+                <div class="product-details-section">
+                    <h1 class="product-title" id="product-title"></h1>
+                    <div class="price-container">
+                        <span class="current-price" id="product-price"></span>
+                        <span class="original-price"></span>
                     </div>
-                    
-                    <div class="product-info">
-                        <h1 id="product-title">Product Title</h1>
-                        <div class="product-price-section">
-                            <span id="product-price" class="product-price">Rs. 0.00</span>
-                            <span id="product-original-price" class="original-price">Rs. 0.00</span>
+                    <div class="description-section">
+                        <h3 class="description-title">Description</h3>
+                        <p class="description-text" id="product-description-text"></p>
+                    </div>
+                    <div class="quantity-section">
+                        <h3 class="quantity-title">Quantity</h3>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="decreaseQuantity()">−</button>
+                            <input type="number" class="quantity-input" value="1" min="1" id="quantity">
+                            <button class="quantity-btn" onclick="increaseQuantity()">+</button>
                         </div>
-                        
-                        <div class="product-description">
-                            <h3>Description</h3>
-                            <p id="product-description-text">Product description will appear here.</p>
-                        </div>
-                        
-                        
-                        <div class="product-options">
-                            <div class="size-selector">
-                                <h4>Size</h4>
-                                <div class="size-options">
-                                    <button class="size-btn" data-size="S">S</button>
-                                    <button class="size-btn active" data-size="M">M</button>
-                                    <button class="size-btn" data-size="L">L</button>
-                                    <button class="size-btn" data-size="XL">XL</button>
-                                </div>
-                            </div>
-                            
-                            <div class="quantity-selector">
-                                <h4>Quantity</h4>
-                                <div class="quantity-controls">
-                                    <button class="quantity-btn" onclick="changeProductQuantity(-1)">-</button>
-                                    <span id="product-quantity" class="quantity">1</span>
-                                    <button class="quantity-btn" onclick="changeProductQuantity(1)">+</button>
-                                </div>
+                    </div>
+                    <div class="product-options">
+                        <div class="size-selector">
+                            <h4>Size</h4>
+                            <div class="size-options">
+                                <button class="size-btn" data-size="XS">XS</button>
+                                <button class="size-btn" data-size="S">S</button>
+                                <button class="size-btn active" data-size="M">M</button>
+                                <button class="size-btn" data-size="L">L</button>
+                                <button class="size-btn" data-size="XL">XL</button>
+                                <button class="size-btn" data-size="XXL">XXL</button>
+                                <button class="size-btn" data-size="XXXL">XXXL</button>
                             </div>
                         </div>
-                        
-                        <div class="product-actions">
-                            <button class="add-to-cart-btn" onclick="addProductToCart()">Add to Cart</button>
-                            <button class="buy-now-btn" onclick="buyNow()">Buy Now</button>
-                        </div>
-                        
-                        <div class="product-tags">
-                            <div id="product-tags" class="tags"></div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="addProductToCart()">Add to Cart</button>
+                            <button class="btn btn-secondary" onclick="buyNow()">Buy Now</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+    <style>
+        /* Product Details Page Styles from index11.html */
+        .product-page-container { max-width: 500px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .product-image-section { width: 100%; padding: 20px; background: white; }
+        .main-product-image { width: 100%; height: 350px; border-radius: 12px; background-size: contain; background-position: center center; background-repeat: no-repeat; background-color: #f8f9fa; border: 1px solid #e9ecef; display: block; overflow: hidden; margin-bottom: 15px; }
+        .product-details-section { padding: 0 20px 20px 20px; }
+        .product-title { font-size: 28px; font-weight: 700; color: #2c3e50; margin-bottom: 15px; text-align: center; }
+        .price-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; justify-content: center; }
+        .current-price { font-size: 24px; font-weight: 700; color: #28a745; }
+        .original-price { font-size: 18px; text-decoration: line-through; color: #6c757d; }
+        .description-section { margin-bottom: 25px; }
+        .description-title { font-size: 18px; font-weight: 600; color: #2c3e50; margin-bottom: 8px; }
+        .description-text { color: #6c757d; font-size: 16px; line-height: 1.6; }
+        .quantity-section { margin-bottom: 25px; }
+        .quantity-title { font-size: 18px; font-weight: 600; color: #2c3e50; margin-bottom: 10px; }
+        .quantity-controls { display: flex; align-items: center; justify-content: center; gap: 0; width: fit-content; margin: 0 auto; border: 2px solid #e9ecef; border-radius: 8px; overflow: hidden; }
+        .quantity-btn { background: #f8f9fa; border: none; width: 45px; height: 45px; font-size: 20px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .quantity-btn:hover { background: #e9ecef; }
+        .quantity-input { border: none; width: 60px; height: 45px; text-align: center; font-size: 16px; font-weight: 600; background: white; }
+        .action-buttons { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .btn { padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn-primary { background: #28a745; color: white; }
+        .btn-primary:hover { background: #218838; transform: translateY(-2px); }
+        .btn-secondary { background: #343a40; color: white; }
+        .btn-secondary:hover { background: #23272b; transform: translateY(-2px); }
+        .wow-section { text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: 20px; border-radius: 12px; }
+        .wow-text { font-size: 24px; font-weight: 700; letter-spacing: 2px; }
+        @media (max-width: 480px) {
+            .main-product-image { height: 280px; }
+            .product-title { font-size: 24px; }
+            .current-price { font-size: 20px; }
+        }
+    </style>
+    <script>
+        function increaseQuantity() { 
+            const quantityInput = document.getElementById('quantity'); 
+            quantityInput.value = parseInt(quantityInput.value) + 1; 
+            productQuantity = parseInt(quantityInput.value);
+        }
+        function decreaseQuantity() { 
+            const quantityInput = document.getElementById('quantity'); 
+            if (parseInt(quantityInput.value) > 1) { 
+                quantityInput.value = parseInt(quantityInput.value) - 1; 
+                productQuantity = parseInt(quantityInput.value);
+            } 
+        }
+    </script>
 
     <!-- Return Policy Page -->
     <section id="return-policy" class="page">
@@ -1248,12 +1284,6 @@
                     productImage.style.backgroundPosition = 'center';
                 }
                 
-                // Set tags
-                const tagsContainer = document.getElementById('product-tags');
-                tagsContainer.innerHTML = product.tags.map(tag => 
-                    `<span class="tag">${tag.replace('-', ' ').toUpperCase()}</span>`
-                ).join('');
-                
                 // Show/hide size selector based on category
                 const sizeSelector = document.querySelector('.size-selector');
                 const isClothing = product.category === 't-shirts' || product.category === 'shirts' || 
@@ -1297,7 +1327,10 @@
             
             // Reset quantity
             productQuantity = 1;
-            document.getElementById('product-quantity').textContent = productQuantity;
+            const quantityInput = document.getElementById('quantity');
+            if (quantityInput) {
+                quantityInput.value = productQuantity;
+            }
         }
         
         // Change product quantity
@@ -1305,7 +1338,10 @@
             productQuantity += change;
             if (productQuantity < 1) productQuantity = 1;
             if (productQuantity > 10) productQuantity = 10;
-            document.getElementById('product-quantity').textContent = productQuantity;
+            const quantityInput = document.getElementById('quantity');
+            if (quantityInput) {
+                quantityInput.value = productQuantity;
+            }
         }
         
         // Add product to cart from details page
