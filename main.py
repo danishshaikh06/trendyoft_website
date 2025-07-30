@@ -15,6 +15,9 @@ from pymysql import Error
 from dotenv import load_dotenv
 import logging
 from contextlib import contextmanager
+import bcrypt
+import jwt
+from datetime import datetime, timedelta
 
 # Load environment variables from .env file
 load_dotenv()
@@ -33,6 +36,11 @@ DB_CONFIG = {
     'read_timeout': 60,
     'write_timeout': 60
 }
+
+# JWT settings
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES =  60 * 24 * 365 * 100
 
 # Initialize FastAPI app
 app = FastAPI(title="Trendyoft E-commerce Backend", version="1.0.0")
@@ -159,19 +167,29 @@ def init_database():
             ) ENGINE=InnoDB;
             """
             
+            # Create users table for authentication
+            create_users_table = """
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                username VARCHAR(100),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_email (email)
+            ) ENGINE=InnoDB;
+            """
+            
             # Drop and recreate order_items table to fix foreign key constraint issues
             drop_order_items_table = "DROP TABLE IF EXISTS order_items;"
             
             # Create order_items table (junction table for orders and products)
             create_order_items_table = """
-            CREATE TABLE order_items (
+            CREATE TABLE IF NOT EXISTS order_items (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 order_id INT NOT NULL,
                 product_id INT NOT NULL,
                 quantity INT NOT NULL,
                 price DECIMAL(10, 2) NOT NULL,
-                FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-                FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT,
                 INDEX idx_order_id (order_id),
                 INDEX idx_product_id (product_id)
             ) ENGINE=InnoDB;
@@ -183,17 +201,38 @@ def init_database():
                 ("products", create_products_table),
                 ("shipping_addresses", create_shipping_addresses_table),
                 ("orders", create_orders_table),
-                ("payment_details", create_payment_details_table)
+                ("payment_details", create_payment_details_table),
+                ("users", create_users_table)
             ]
             
             for table_name, query in tables:
                 cursor.execute(query)
                 logger.info(f"Table {table_name} created/verified successfully")
             
-            # TODO: Fix order_items table foreign key constraint issue later
-            # cursor.execute(drop_order_items_table)
-            # cursor.execute(create_order_items_table)
-            # logger.info("Table order_items created/verified successfully")
+            # Create order_items table without foreign keys first
+            cursor.execute(create_order_items_table)
+            logger.info("Table order_items created/verified successfully")
+            
+            # Add foreign key constraints after all tables are created
+            try:
+                cursor.execute("""
+                    ALTER TABLE order_items 
+                    ADD CONSTRAINT fk_order_items_order_id 
+                    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+                """)
+                logger.info("Foreign key constraint for order_items.order_id added successfully")
+            except Exception as e:
+                logger.warning(f"Foreign key constraint for order_items.order_id already exists or failed: {e}")
+            
+            try:
+                cursor.execute("""
+                    ALTER TABLE order_items 
+                    ADD CONSTRAINT fk_order_items_product_id 
+                    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
+                """)
+                logger.info("Foreign key constraint for order_items.product_id added successfully")
+            except Exception as e:
+                logger.warning(f"Foreign key constraint for order_items.product_id already exists or failed: {e}")
             
             conn.commit()
             logger.info("Database initialization completed successfully")
@@ -383,39 +422,64 @@ def get_customer_by_email(email: str):
 
 # Order management functions
 def create_order_in_db(order_data):
-    """Create a new order with order items"""
+    """Create a new order with order items, and update stock within a transaction"""
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        
-        # Insert order
-        insert_order_query = """
-            INSERT INTO orders (customer_id, shipping_address_id, status, total_amount) 
-            VALUES (%s, %s, %s, %s)
-        """
-        cursor.execute(insert_order_query, (
-            order_data['customer_id'],
-            order_data['shipping_address_id'],
-            order_data.get('status', 'pending'),
-            order_data['total_amount']
-        ))
-        order_id = cursor.lastrowid
-        
-        # Insert order items
-        if 'items' in order_data:
+        try:
+            # Start a transaction
+            conn.begin()
+
+            # Check stock for each item and lock the rows
+            for item in order_data['items']:
+                cursor.execute("SELECT title, quantity FROM products WHERE id = %s FOR UPDATE", (item['product_id'],))
+                product = cursor.fetchone()
+                if not product:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product with ID {item['product_id']} not found")
+                if product['quantity'] <= 0:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"'{product['title']}' is out of stock.")
+                if product['quantity'] < item['quantity']:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Insufficient stock for '{product['title']}'. Only {product['quantity']} left.")
+
+            # Insert order
+            insert_order_query = """
+                INSERT INTO orders (customer_id, shipping_address_id, status, total_amount) 
+                VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(insert_order_query, (
+                order_data['customer_id'],
+                order_data['shipping_address_id'],
+                order_data.get('status', 'pending'),
+                order_data['total_amount']
+            ))
+            order_id = cursor.lastrowid
+
+            # Insert order items and update stock
             insert_item_query = """
                 INSERT INTO order_items (order_id, product_id, quantity, price) 
                 VALUES (%s, %s, %s, %s)
             """
+            update_stock_query = "UPDATE products SET quantity = quantity - %s WHERE id = %s"
+
             for item in order_data['items']:
+                # Insert order item
                 cursor.execute(insert_item_query, (
                     order_id,
                     item['product_id'],
                     item['quantity'],
                     item['price']
                 ))
-        
-        conn.commit()
-        return order_id
+                # Update product stock
+                cursor.execute(update_stock_query, (item['quantity'], item['product_id']))
+
+            conn.commit()
+            return order_id
+        except HTTPException as e:
+            conn.rollback()
+            raise e
+        except Exception as e:
+            conn.rollback()
+            logger.error(f"Error creating order: {e}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An unexpected error occurred while creating the order.")
 
 # Legacy support - keeping products_db for backward compatibility during transition
 products_db = []
@@ -519,6 +583,15 @@ class ProductResponse(BaseModel):
     created_at: str
     updated_at: Optional[str] = None
     is_active: bool = True
+    stock_status: str  # New field for stock status
+
+# Stock check models
+class StockCheckResponse(BaseModel):
+    available: bool
+    message: str
+    max_quantity: int
+    product_title: Optional[str]
+    requested_quantity: int
 
 # Additional models for database operations
 class CustomerCreate(BaseModel):
@@ -562,6 +635,28 @@ class OrderResponse(BaseModel):
     status: str
     total_amount: float
     order_date: str
+
+class OrderDisplay(BaseModel):
+    id: int
+    status: str
+    total_amount: float
+    order_date: str
+    items: List[OrderItem]
+
+# User authentication models
+class UserCreate(BaseModel):
+    email: str
+    password: str
+    username: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    username: str
 
 # Admin authentication
 def verify_admin_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -713,6 +808,45 @@ def delete_image_file(image_url: str):
         if os.path.exists(file_path):
             os.remove(file_path)
 
+# Stock validation function
+def check_stock_availability(product_id: int, requested_quantity: int):
+    """Check if requested quantity is available for a product"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT title, quantity FROM products WHERE id = %s AND is_active = TRUE", (product_id,))
+        product = cursor.fetchone()
+        
+        if not product:
+            return {
+                "available": False,
+                "error": "Product not found",
+                "max_quantity": 0,
+                "product_title": None
+            }
+        
+        if product['quantity'] <= 0:
+            return {
+                "available": False,
+                "error": f"'{product['title']}' is out of stock",
+                "max_quantity": 0,
+                "product_title": product['title']
+            }
+        
+        if requested_quantity > product['quantity']:
+            return {
+                "available": False,
+                "error": f"Only {product['quantity']} items available for '{product['title']}'",
+                "max_quantity": product['quantity'],
+                "product_title": product['title']
+            }
+        
+        return {
+            "available": True,
+            "error": None,
+            "max_quantity": product['quantity'],
+            "product_title": product['title']
+        }
+
 # API Endpoints
 
 from fastapi.responses import FileResponse
@@ -735,6 +869,7 @@ async def api_info():
         "version": "1.0.0",
         "endpoints": {
             "products": "/products/",
+            "check_stock": "/check-stock/{product_id}?quantity={quantity}",
             "add_product": "/add-product/ (POST, Admin only)",
             "delete_product": "/delete-product/{product_id} (DELETE, Admin only)"
         }
@@ -762,7 +897,8 @@ async def get_products():
                     'original': image_full
                 },
                 'created_at': product['created_at'].isoformat() if product.get('created_at') else '',
-                'updated_at': product['updated_at'].isoformat() if product.get('updated_at') else None
+                'updated_at': product['updated_at'].isoformat() if product.get('updated_at') else None,
+                'stock_status': 'In Stock' if product.get('quantity', 0) > 0 else 'Out of Stock'
             }
             formatted_products.append(formatted_product)
         return formatted_products
@@ -793,7 +929,8 @@ async def get_product(product_id: int):
                 'original': image_full
             },
             'created_at': product['created_at'].isoformat() if product.get('created_at') else '',
-            'updated_at': product['updated_at'].isoformat() if product.get('updated_at') else None
+            'updated_at': product['updated_at'].isoformat() if product.get('updated_at') else None,
+            'stock_status': 'In Stock' if product.get('quantity', 0) > 0 else 'Out of Stock'
         }
         return formatted_product
     except HTTPException:
@@ -801,6 +938,38 @@ async def get_product(product_id: int):
     except Exception as e:
         logger.error(f"Error fetching product {product_id}: {e}")
         raise HTTPException(status_code=500, detail="Error fetching product")
+
+@app.get("/check-stock/{product_id}")
+async def check_stock(product_id: int, quantity: int = 1):
+    """Check stock availability for a product before adding to cart - Public endpoint"""
+    try:
+        if quantity <= 0:
+            raise HTTPException(status_code=400, detail="Quantity must be greater than 0")
+        
+        stock_info = check_stock_availability(product_id, quantity)
+        
+        if not stock_info["available"]:
+            return {
+                "available": False,
+                "message": stock_info["error"],
+                "max_quantity": stock_info["max_quantity"],
+                "product_title": stock_info["product_title"],
+                "requested_quantity": quantity
+            }
+        
+        return {
+            "available": True,
+            "message": f"Stock available for '{stock_info['product_title']}'",
+            "max_quantity": stock_info["max_quantity"],
+            "product_title": stock_info["product_title"],
+            "requested_quantity": quantity
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error checking stock for product {product_id}: {e}")
+        raise HTTPException(status_code=500, detail="Error checking stock availability")
 
 @app.post("/add-product/", response_model=ProductResponse)
 async def add_product(
@@ -857,7 +1026,8 @@ async def add_product(
                 'original': created_product.get('image_full_url', '')
             },
             'created_at': created_product['created_at'].isoformat() if created_product.get('created_at') else '',
-            'updated_at': created_product['updated_at'].isoformat() if created_product.get('updated_at') else None
+            'updated_at': created_product['updated_at'].isoformat() if created_product.get('updated_at') else None,
+            'stock_status': 'In Stock' if created_product.get('quantity', 0) > 0 else 'Out of Stock'
         }
         
         return formatted_product
@@ -944,7 +1114,8 @@ async def update_product(
                 'original': updated_product.get('image_full_url', '')
             },
             'created_at': updated_product['created_at'].isoformat() if updated_product.get('created_at') else '',
-            'updated_at': updated_product['updated_at'].isoformat() if updated_product.get('updated_at') else None
+            'updated_at': updated_product['updated_at'].isoformat() if updated_product.get('updated_at') else None,
+            'stock_status': 'In Stock' if updated_product.get('quantity', 0) > 0 else 'Out of Stock'
         }
 
         return formatted_product
@@ -1087,6 +1258,221 @@ async def search_products(q: str = ""):
         if query in p["title"].lower() or query in p["description"].lower()
     ]
     return filtered_products
+
+# Authentication helper functions
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Verify JWT token and return user email"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return email
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+def get_user_orders_from_db(user_email: str):
+    """Fetch all orders for a specific user by email"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        
+        # First get customer ID from email
+        cursor.execute("SELECT id FROM customers WHERE email = %s", (user_email,))
+        customer = cursor.fetchone()
+        
+        if not customer:
+            return []
+        
+        customer_id = customer['id']
+        
+        # Get orders for this customer with order items and product details
+        cursor.execute("""
+            SELECT 
+                o.id, o.status, o.total_amount, o.order_date,
+                oi.product_id, oi.quantity, oi.price,
+                p.title, p.description, p.image_main_url
+            FROM orders o
+            LEFT JOIN order_items oi ON o.id = oi.order_id
+            LEFT JOIN products p ON oi.product_id = p.id
+            WHERE o.customer_id = %s
+            ORDER BY o.order_date DESC, o.id DESC
+        """, (customer_id,))
+        
+        rows = cursor.fetchall()
+        
+        # Group order items by order ID
+        orders_dict = {}
+        for row in rows:
+            order_id = row['id']
+            if order_id not in orders_dict:
+                orders_dict[order_id] = {
+                    'id': order_id,
+                    'status': row['status'],
+                    'total_amount': float(row['total_amount']),
+                    'order_date': row['order_date'].isoformat() if row['order_date'] else '',
+                    'items': []
+                }
+            
+            # Add order item if it exists (some orders might not have items yet)
+            if row['product_id']:
+                order_item = {
+                    'product_id': row['product_id'],
+                    'quantity': row['quantity'],
+                    'price': float(row['price']),
+                    'title': row['title'],
+                    'description': row['description'],
+                    'image_url': row['image_main_url'] or ''
+                }
+                orders_dict[order_id]['items'].append(order_item)
+        
+        return list(orders_dict.values())
+
+# Authentication endpoints
+@app.post("/register", status_code=status.HTTP_201_CREATED)
+def register_user(user: UserCreate):
+    """Register a new user"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        # Check if user already exists
+        cursor.execute("SELECT id FROM users WHERE email = %s", (user.email,))
+        if cursor.fetchone():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered",
+            )
+        
+        # Hash password
+        hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt(rounds=10))
+        
+        # Insert new user
+        insert_query = "INSERT INTO users (email, password_hash, username) VALUES (%s, %s, %s)"
+        cursor.execute(insert_query, (user.email, hashed_password.decode('utf-8'), user.username))
+        conn.commit()
+        
+    return {"message": "User registered successfully"}
+
+@app.post("/login", response_model=Token)
+def login_for_access_token(form_data: UserLogin):
+    """Authenticate user and return access token"""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, email, password_hash, username FROM users WHERE email = %s", (form_data.email,))
+        user = cursor.fetchone()
+        
+        if not user or not bcrypt.checkpw(form_data.password.encode('utf-8'), user['password_hash'].encode('utf-8')):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+            
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user['email'], "username": user['username']}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer", "username": user['username']}
+
+@app.get("/my-orders")
+async def get_my_orders(user_email: str = Depends(verify_token)):
+    """Get all orders for the authenticated user"""
+    try:
+        orders = get_user_orders_from_db(user_email)
+        return {
+            "orders": orders,
+            "total_orders": len(orders)
+        }
+    except Exception as e:
+        logger.error(f"Error fetching orders for user {user_email}: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching orders")
+
+@app.post("/place-order/", response_model=OrderResponse)
+async def place_order(order: OrderCreate, user_email: str = Depends(verify_token)):
+    """
+    Place a new order. This endpoint is for authenticated users and ensures stock availability
+    before creating an order.
+    """
+    try:
+        customer = get_customer_by_email(user_email)
+        if not customer:
+            # Create a customer record for the authenticated user
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT username FROM users WHERE email = %s", (user_email,))
+                user = cursor.fetchone()
+                username = user['username'] if user else 'User'
+                
+                # Split username to create first/last name (basic approach)
+                name_parts = username.split(' ', 1)
+                first_name = name_parts[0]
+                last_name = name_parts[1] if len(name_parts) > 1 else ''
+                
+                customer_data = {
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'email': user_email,
+                    'phone_number': None
+                }
+                customer_id = insert_customer_to_db(customer_data)
+                customer = {'id': customer_id, **customer_data}
+
+        # Create or get shipping address
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM shipping_addresses WHERE customer_id = %s LIMIT 1", (customer['id'],))
+            shipping_address = cursor.fetchone()
+            if not shipping_address:
+                cursor.execute(
+                    "INSERT INTO shipping_addresses (customer_id, address_line1, city, country, zip_code) VALUES (%s, %s, %s, %s, %s)",
+                    (customer['id'], 'Default Address', 'Default City', 'Default Country', '00000')
+                )
+                conn.commit()
+                shipping_address_id = cursor.lastrowid
+            else:
+                shipping_address_id = shipping_address['id']
+
+        order_data = order.dict()
+        order_data['customer_id'] = customer['id']
+        order_data['shipping_address_id'] = shipping_address_id
+
+        order_id = create_order_in_db(order_data)
+
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
+            created_order = cursor.fetchone()
+            if created_order:
+                created_order['order_date'] = created_order['order_date'].isoformat()
+            return created_order
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error placing order for user {user_email}: {e}")
+        raise HTTPException(status_code=500, detail="Error placing order")
 
 # Optional: Save products to JSON file
 def save_products_to_file():

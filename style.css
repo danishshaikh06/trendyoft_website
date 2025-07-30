@@ -906,15 +906,65 @@ body {
     transform: translateY(-1px);
 }
 
+/* Authentication Styles */
+.auth-container {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+    background: linear-gradient(135deg, #00027d 0%, #ffffff 100%);
+}
+
+.auth-form {
+    width: 100%;
+}
+
+.profile-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.username-display {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.signout-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.signout-btn:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
 /* Form Styles */
 .form-container {
     max-width: 400px;
     margin: 2rem auto;
-    background: white;
+    background: rgb(3, 28, 102);
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
+    backdrop-filter: blur(10px);
 }
 
 .form-header {
@@ -925,7 +975,7 @@ body {
 .form-header h2 {
     font-size: 1.8rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #000000;
     margin-bottom: 0.5rem;
 }
 
@@ -941,7 +991,7 @@ body {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #374151;
+    color: #01050a;
 }
 
 .form-group input {
@@ -1986,18 +2036,18 @@ body {
     
     .search-btn,
     .cart-btn {
-        min-width: 32px;
-        height: 32px;
+        min-width: 50px;
+        height: 29px;
         padding: 0.4rem;
         font-size: 0.85rem;
     }
     
     .cart-count {
-        min-width: 14px;
+        min-width: px;
         height: 14px;
         font-size: 0.6rem;
-        top: -3px;
-        right: -3px;
+        top: 3px;
+        right:0px;
     }
     
     .main-title,
@@ -2107,7 +2157,7 @@ body {
         top: 100%;
         left: 0;
         right: 0;
-        background: white;
+        background:#1d1756;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         border-radius: 0 0 8px 8px;
         padding: 1rem 0;
