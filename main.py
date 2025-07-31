@@ -45,13 +45,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES =  60 * 24 * 365 * 100
 # Initialize FastAPI app
 app = FastAPI(title="Trendyoft E-commerce Backend", version="1.0.0")
 
-# Setup logging
+# Setup logging (console only for serverless)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('app.log'),
-        logging.StreamHandler()
+        logging.StreamHandler()  # Only console logging for serverless
     ]
 )
 logger = logging.getLogger(__name__)
