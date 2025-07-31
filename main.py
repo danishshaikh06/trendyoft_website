@@ -261,11 +261,17 @@ def init_database():
         logger.error(f"Error initializing database: {e}")
         raise
 
-# Initialize database on startup
+# Initialize database on startup (with better error handling for serverless)
 try:
-    init_database()
+    # Only initialize database if we have all required environment variables
+    if all([os.getenv('host_name'), os.getenv('db_username'), os.getenv('db_password'), os.getenv('database_name')]):
+        init_database()
+        logger.info("Database initialized successfully")
+    else:
+        logger.warning("Database environment variables not found - running without database")
 except Exception as e:
     logger.error(f"Failed to initialize database: {e}")
+    # Don't crash the app if database initialization fails
 
 # CORS middleware to allow frontend access
 app.add_middleware(
