@@ -1118,7 +1118,7 @@ async function increaseQuantity() {
         let cart = [];
         
         // Backend API Configuration
-        const API_BASE_URL = 'https://trendyoft-website.onrender.com';
+        const API_BASE_URL = 'http://127.0.0.1:8000';
         
         // Function to fetch products from backend API
         async function fetchProductsFromAPI() {
@@ -1326,14 +1326,20 @@ async function increaseQuantity() {
             if (!productsGrid || products.length === 0) return;
             
             // Show all products from API
-            const productsHTML = products.map(product => `
-                <div class="product-card">
-                    <div class="product-image ${product.image}" onclick="viewProductDetails('${product.name}')" style="background-image: url('${product.imageUrl || ''}')"></div>
-                    <h3 onclick="viewProductDetails('${product.name}')">${product.name}</h3>
-                    <p class="price">Rs. ${product.price.toFixed(2)}</p>
-                    <button class="add-to-cart" onclick="addToCartFromHome('${product.name}', ${product.price})">Add to Cart</button>
-                </div>
-            `).join('');
+            const productsHTML = products.map(product => {
+                const isOutOfStock = product.quantity === 0;
+                return `
+                    <div class="product-card">
+                        <div class="product-image ${product.image}" onclick="viewProductDetails('${product.name}')" style="background-image: url('${product.imageUrl || ''}')"></div>
+                        <h3 onclick="viewProductDetails('${product.name}')">${product.name}</h3>
+                        <p class="price">Rs. ${product.price.toFixed(2)}</p>
+                        ${isOutOfStock ? 
+                            '<button class="add-to-cart" disabled style="background-color: #ccc; cursor: not-allowed;">Out of Stock</button>' : 
+                            `<button class="add-to-cart" onclick="addToCartFromHome('${product.name}', ${product.price})">Add to Cart</button>`
+                        }
+                    </div>
+                `;
+            }).join('');
             
             productsGrid.innerHTML = productsHTML;
         }
@@ -1491,16 +1497,20 @@ async function increaseQuantity() {
                 } else {
                     noProductsDiv.style.display = 'none';
                     
-                    const productsHTML = filteredProducts.map(product => `
-                        <div class="product-card">
-                            <div class="product-image ${product.image}" onclick="viewProductDetails('${product.name}')" style="background-image: url('${product.imageUrl || ''}')"></div>
-                            <h3 onclick="viewProductDetails('${product.name}')">${product.name}</h3>
-                            <p class="price">Rs. ${product.price.toFixed(2)}</p>
-                            <button class="add-to-cart" onclick="addToCartFromShop('${product.name}', ${product.price})">
-                                Add to Cart
-                            </button>
-                        </div>
-                    `).join('');
+                    const productsHTML = filteredProducts.map(product => {
+                        const isOutOfStock = product.quantity === 0;
+                        return `
+                            <div class="product-card">
+                                <div class="product-image ${product.image}" onclick="viewProductDetails('${product.name}')" style="background-image: url('${product.imageUrl || ''}')"></div>
+                                <h3 onclick="viewProductDetails('${product.name}')">${product.name}</h3>
+                                <p class="price">Rs. ${product.price.toFixed(2)}</p>
+                                ${isOutOfStock ? 
+                                    '<button class="add-to-cart" disabled style="background-color: #ccc; cursor: not-allowed;">Out of Stock</button>' : 
+                                    `<button class="add-to-cart" onclick="addToCartFromShop('${product.name}', ${product.price})">Add to Cart</button>`
+                                }
+                            </div>
+                        `;
+                    }).join('');
                     
                     shopProductsGrid.innerHTML = productsHTML;
                 }
@@ -1649,35 +1659,74 @@ async function increaseQuantity() {
         // Add to cart functionality with product details
         function addProductToCart() {
             if (currentProduct) {
+                // Check if product is out of stock
+                if (currentProduct.quantity <= 0) {
+                    alert(`Sorry, "${currentProduct.name}" is currently out of stock.`);
+                    return;
+                }
+                
+                // Check current cart quantity for this product
+                const existingItem = cart.find(item => item.name === currentProduct.name);
+                const currentCartQuantity = existingItem ? existingItem.quantity : 0;
+                
+                // Check if requested quantity + current cart quantity exceeds available stock
+                if ((currentCartQuantity + productQuantity) > currentProduct.quantity) {
+                    const availableToAdd = currentProduct.quantity - currentCartQuantity;
+                    if (availableToAdd <= 0) {
+                        alert(`You already have the maximum available quantity (${currentProduct.quantity}) of "${currentProduct.name}" in your cart.`);
+                    } else {
+                        alert(`Cannot add ${productQuantity} items. You can only add ${availableToAdd} more of "${currentProduct.name}" (${currentCartQuantity} already in cart, ${currentProduct.quantity} total available).`);
+                    }
+                    return;
+                }
+                
+                // Add items to cart one by one (this handles the cart logic properly)
                 for (let i = 0; i < productQuantity; i++) {
                     addToCart(currentProduct.name, currentProduct.price);
                 }
                 
                 // Show success message
-                const addBtn = document.querySelector('.add-to-cart-btn');
-                const originalText = addBtn.textContent;
-                addBtn.textContent = `Added ${productQuantity} to Cart!`;
-                addBtn.style.background = '#10b981';
-                
-                setTimeout(() => {
-                    addBtn.textContent = originalText;
-                    addBtn.style.background = '';
-                }, 2000);
+                const addBtn = document.querySelector('.btn-primary');
+                if (addBtn) {
+                    const originalText = addBtn.textContent;
+                    addBtn.textContent = `Added ${productQuantity} to Cart!`;
+                    addBtn.style.background = '#10b981';
+                    
+                    setTimeout(() => {
+                        addBtn.textContent = originalText;
+                        addBtn.style.background = '#28a745';
+                    }, 2000);
+                }
             }
         }
         
         // Buy now functionality
         function buyNow() {
             if (currentProduct) {
+                // Check if product is out of stock
+                if (currentProduct.quantity <= 0) {
+                    alert(`Sorry, "${currentProduct.name}" is currently out of stock.`);
+                    return;
+                }
+                
+                // Check if requested quantity is available
+                if (productQuantity > currentProduct.quantity) {
+                    alert(`Only ${currentProduct.quantity} items available for "${currentProduct.name}".`);
+                    return;
+                }
+                
                 // Clear cart first
                 cart = [];
                 
-                // Add current product to cart
-                for (let i = 0; i < productQuantity; i++) {
-                    addToCart(currentProduct.name, currentProduct.price);
-                }
+                // Add current product to cart directly (since cart is empty, no need for complex validation)
+                cart.push({
+                    name: currentProduct.name,
+                    price: currentProduct.price,
+                    quantity: productQuantity
+                });
                 
-                // Go to checkout
+                // Update cart count and proceed to checkout
+                updateCartCount();
                 showPage('checkout');
             }
         }
@@ -1766,7 +1815,7 @@ async function increaseQuantity() {
             }
             
             // If all validations pass, proceed with order
-            showPage('order-placed');
+            submitOrderToAPI();
         }
 
         // Add to cart from homepage
@@ -1820,17 +1869,29 @@ async function increaseQuantity() {
 
         // Add to cart functionality
         function addToCart(productName, price) {
-            const existingItem = cart.find(item => item.name === productName);
             const product = products.find(p => p.name === productName);
             
+            // Check if product exists and is out of stock
+            if (product && product.quantity <= 0) {
+                alert(`Sorry, "${productName}" is currently out of stock.`);
+                return;
+            }
+            
+            const existingItem = cart.find(item => item.name === productName);
+            
             if (existingItem) {
-                // Check stock before increasing quantity
-                if (product && existingItem.quantity >= product.quantity) {
-                    alert(`Cannot add more ${productName}. Only ${product.quantity} items available in stock.`);
+                // Check if we can add one more item (current cart quantity + 1 should not exceed stock)
+                if (product && (existingItem.quantity + 1) > product.quantity) {
+                    alert(`Cannot add more ${productName}. Only ${product.quantity} items available in stock. You currently have ${existingItem.quantity} in your cart.`);
                     return;
                 }
                 existingItem.quantity += 1;
             } else {
+                // Check if we can add at least 1 item
+                if (product && product.quantity < 1) {
+                    alert(`Sorry, "${productName}" is currently out of stock.`);
+                    return;
+                }
                 cart.push({
                     name: productName,
                     price: price,
@@ -1903,7 +1964,7 @@ async function increaseQuantity() {
             
             if (change > 0) {
                 // Check stock before increasing quantity
-                if (product && item.quantity >= product.quantity) {
+                if (product && (item.quantity + change) > product.quantity) {
                     alert(`Cannot add more ${item.name}. Only ${product.quantity} items available in stock.`);
                     return;
                 }
@@ -2271,6 +2332,162 @@ async function increaseQuantity() {
             this.reset();
         });
 
+        // Submit order to API function
+        async function submitOrderToAPI() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('You must be logged in to place an order.');
+                showPage('login');
+                return;
+            }
+            
+            try {
+                // Show loading state
+                const submitButton = document.querySelector('button[onclick="placeOrder(event)"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Processing...';
+                submitButton.disabled = true;
+                
+                // Transform cart items to match API format
+                const orderItems = [];
+                let hasInvalidProducts = false;
+                
+                for (const item of cart) {
+                    const product = products.find(p => p.name === item.name);
+                    if (!product) {
+                        console.error(`Product not found: ${item.name}`);
+                        alert(`Error: Product "${item.name}" not found. Please refresh the page and try again.`);
+                        hasInvalidProducts = true;
+                        break;
+                    }
+                    orderItems.push({
+                        product_id: product.id,
+                        quantity: item.quantity,
+                        price: item.price
+                    });
+                }
+                
+                if (hasInvalidProducts) {
+                    // Reset button state
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                    return;
+                }
+                
+                // Calculate total amount
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const totalAmount = subtotal - promoDiscount;
+                
+                // Get form data for shipping and payment
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('email').value;
+                const phoneNumber = document.getElementById('phoneNumber').value;
+                const address = document.getElementById('address').value;
+                const city = document.getElementById('city').value;
+                const country = document.getElementById('country').value;
+                const zipCode = document.getElementById('zipCode').value;
+                const deliveryInstructions = document.getElementById('deliveryInstructions').value;
+                const cardNumber = document.getElementById('cardNumber').value;
+                const expiryDate = document.getElementById('expiryDate').value;
+                const cvv = document.getElementById('cvv').value;
+                
+                // Prepare order data with shipping and payment details
+                const orderData = {
+                    customer_id: 1, // This will be overridden by the backend
+                    shipping_address_id: 1, // This will be overridden by the backend
+                    items: orderItems,
+                    total_amount: totalAmount,
+                    status: 'pending',
+                    // Customer details from checkout form
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: email,
+                    phone_number: phoneNumber,
+                    // Shipping address fields
+                    shipping_address_line1: address,
+                    shipping_address_line2: deliveryInstructions,
+                    city: city,
+                    country: country,
+                    zip_code: zipCode,
+                    // Payment fields (for logging purposes - not storing sensitive data)
+                    payment_provider: 'credit_card',
+                    card_number: cardNumber ? '****' + cardNumber.slice(-4) : null, // Only last 4 digits for logging
+                    expiry_date: expiryDate,
+                    cvv: null // Never store CVV
+                };
+                
+                console.log('Submitting order:', orderData);
+                
+                // Send order to API
+                const response = await fetch(`${API_BASE_URL}/place-order/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('username');
+                    updateNavUI(null);
+                    alert('Your session has expired. Please log in again.');
+                    showPage('login');
+                    return;
+                }
+                
+                if (response.ok) {
+                    const orderResult = await response.json();
+                    console.log('Order placed successfully:', orderResult);
+                    
+                    // Clear cart after successful order
+                    cart = [];
+                    updateCartCount();
+                    
+                    // Reset promo code
+                    resetPromoCode();
+                    
+                    // Show success page
+                    showPage('order-placed');
+                    
+                    // Update the order placed page with actual order details
+                    updateOrderPlacedPage(orderResult);
+                    
+                } else {
+                    const errorData = await response.json();
+                    console.error('Order placement failed:', errorData);
+                    alert(`Order placement failed: ${errorData.detail || 'Unknown error'}`);
+                }
+                
+            } catch (error) {
+                console.error('Error submitting order:', error);
+                alert('Failed to place order. Please check your connection and try again.');
+            } finally {
+                // Reset button state
+                const submitButton = document.querySelector('button[onclick="placeOrder(event)"]');
+                if (submitButton) {
+                    submitButton.textContent = 'Place Order';
+                    submitButton.disabled = false;
+                }
+            }
+        }
+        
+        // Update order placed page with actual order details
+        function updateOrderPlacedPage(orderResult) {
+            const orderNumber = document.querySelector('.value');
+            const totalAmount = document.querySelector('.info-row:last-child .value');
+            
+            if (orderNumber) {
+                orderNumber.textContent = `#TRD-${orderResult.id}`;
+            }
+            
+            if (totalAmount) {
+                totalAmount.textContent = `Rs. ${orderResult.total_amount.toFixed(2)}`;
+            }
+        }
+
         // Authentication logic
         const loginForm = document.getElementById('login-form');
         const registerForm = document.getElementById('register-form');
@@ -2432,9 +2649,13 @@ async function increaseQuantity() {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const orders = await response.json();
+                const response_data = await response.json();
+                console.log('Orders API response:', response_data);
+                
+                // Handle different response formats
+                const orders = response_data.orders || response_data || [];
 
-                if (orders.length === 0) {
+                if (!orders || orders.length === 0) {
                     ordersList.innerHTML = '';
                     noOrders.style.display = 'block';
                 } else {
@@ -2443,22 +2664,23 @@ async function increaseQuantity() {
                             <div class="order-header">
                                 <div>
                                     <h3>Order #${order.id}</h3>
-                                    <p class="order-date">Date: ${new Date(order.created_at).toLocaleDateString()}</p>
+                                    <p class="order-date">Date: ${new Date(order.order_date).toLocaleDateString()}</p>
+                                    <p class="order-status">Status: ${order.status}</p>
                                 </div>
                                 <div class="order-total">
-                                    <p>Total: Rs. ${order.total_price.toFixed(2)}</p>
+                                    <p>Total: Rs. ${order.total_amount.toFixed(2)}</p>
                                 </div>
                             </div>
                             <div class="order-items">
-                                ${order.items.map(item => `
+                                ${order.items && order.items.length > 0 ? order.items.map(item => `
                                     <div class="order-item">
                                         <div class="item-details">
-                                            <span class="item-name">${item.product_name}</span>
+                                            <span class="item-name">${item.title || item.product_name || 'Product'}</span>
                                             <span class="item-qty">Qty: ${item.quantity}</span>
                                         </div>
                                         <span class="item-price">Rs. ${(item.price * item.quantity).toFixed(2)}</span>
                                     </div>
-                                `).join('')}
+                                `).join('') : '<p>No items found</p>'}
                             </div>
                         </div>
                     `).join('');
