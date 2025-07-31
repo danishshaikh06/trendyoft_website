@@ -942,6 +942,7 @@ async def api_info():
 async def get_products():
     """Get all products - Public endpoint for frontend"""
     try:
+        # Try to get products from database first
         products = get_products_from_db()
         # Format products to match expected response
         formatted_products = []
@@ -966,8 +967,27 @@ async def get_products():
             formatted_products.append(formatted_product)
         return formatted_products
     except Exception as e:
-        logger.error(f"Error fetching products: {e}")
-        raise HTTPException(status_code=500, detail="Error fetching products")
+        logger.error(f"Error fetching products from database: {e}")
+        logger.info("Falling back to sample products")
+        # Fall back to sample products if database is not available
+        formatted_products = []
+        for product in products_db:
+            formatted_product = {
+                'id': hash(product['id']) % 1000000,  # Convert UUID to int for compatibility
+                'title': product['title'],
+                'price': product['price'],
+                'description': product['description'],
+                'quantity': product['quantity'],
+                'category': product['category'],
+                'image_url': product['image_url'],
+                'images': product['images'],
+                'created_at': product['created_at'],
+                'updated_at': None,
+                'is_active': True,
+                'stock_status': 'In Stock' if product['quantity'] > 0 else 'Out of Stock'
+            }
+            formatted_products.append(formatted_product)
+        return formatted_products
 
 @app.get("/products/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: int):
