@@ -4,6 +4,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from typing import List, Optional
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import os
 import uuid
 import json
@@ -464,6 +467,46 @@ def update_customer_in_db(customer_id: int, customer_data):
         return cursor.rowcount > 0
 
 # Order management functions
+def send_email(subject, body, to_email, customer_name=None):
+    """Send an email notification with improved deliverability"""
+    from_email = os.getenv('EMAIL_USER')
+    email_password = os.getenv('EMAIL_PASS')
+
+    # Create message container
+    msg = MIMEMultipart()
+    msg['From'] = f'TrendyOft <{from_email}>'
+    msg['To'] = to_email
+    msg['Subject'] = subject
+    msg['Reply-To'] = from_email
+    
+    # Add headers to improve deliverability
+    msg['X-Mailer'] = 'TrendyOft Order System'
+    msg['Message-ID'] = f'<{uuid.uuid4()}@trendyoft.com>'
+    
+    # Create better formatted body
+    if customer_name:
+        formatted_body = f"Dear {customer_name},\n\n{body}\n\nBest regards,\nTrendyOft Team\n\n---\nThis is an automated message from TrendyOft. Please check your spam folder if you don't see our emails."
+    else:
+        formatted_body = f"{body}\n\nBest regards,\nTrendyOft Team"
+
+    # Attach the body with the msg instance
+    msg.attach(MIMEText(formatted_body, 'plain'))
+
+    # Create server connection and send email
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(from_email, email_password)
+        text = msg.as_string()
+        server.sendmail(from_email, to_email, text)
+        server.quit()
+        logger.info(f"Email sent successfully to {to_email} (Subject: {subject})")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send email to {to_email}: {e}")
+        return False
+
+
 def create_order_in_db(order_data):
     """Create a new order with order items, and update stock within a transaction"""
     with get_db_connection() as conn:
@@ -519,6 +562,58 @@ def create_order_in_db(order_data):
 
             conn.commit()
             logger.info(f"Order {order_id} created successfully.")
+
+            # Send email notifications
+            from_email = os.getenv('EMAIL_USER')
+            customer_email = order_data.get('email', '')
+            
+            # Get customer name for personalized emails
+            customer_name = None
+            if order_data.get('customer_id'):
+                try:
+                    with get_db_connection() as email_conn:
+                        email_cursor = email_conn.cursor()
+                        email_cursor.execute("SELECT first_name, last_name FROM customers WHERE id = %s", (order_data['customer_id'],))
+                        customer_info = email_cursor.fetchone()
+                        if customer_info:
+                            customer_name = f"{customer_info['first_name']} {customer_info['last_name']}"
+                except Exception as e:
+                    logger.warning(f"Could not fetch customer name for email: {e}")
+            
+            # Create order items description for emails using order data
+            order_items_description = ""
+            if order_data.get('items'):
+                logger.info(f"Processing {len(order_data['items'])} items for email")
+                
+                # Get product details for each item
+                for item in order_data['items']:
+                    try:
+                        # Get product title for this item
+                        cursor.execute("SELECT title FROM products WHERE id = %s", (item['product_id'],))
+                        product = cursor.fetchone()
+                        product_title = product['title'] if product else f"Product ID {item['product_id']}"
+                        
+                        order_items_description += f"- {product_title}: {item['quantity']} x ${item['price']:.2f} each\n"
+                        logger.info(f"Added item to email: {product_title} x {item['quantity']}")
+                        
+                    except Exception as e:
+                        logger.warning(f"Could not get product title for product {item['product_id']}: {e}")
+                        order_items_description += f"- Product ID {item['product_id']}: {item['quantity']} x ${item['price']:.2f} each\n"
+            else:
+                logger.warning("No items found in order data for email")
+                order_items_description = "No items found\n"
+
+            # Send admin notification with order details
+            admin_subject = f"New Order Received - ID: {order_id}"
+            admin_body = f"You have received a new order with ID: {order_id}.\n\nCustomer Name: {customer_name if customer_name else 'N/A'}\nEmail: {customer_email}\nTotal Amount: ${order_data['total_amount']:.2f}\n\nOrder Details:\n{order_items_description}"
+            send_email(admin_subject, admin_body, from_email)
+
+            # Send customer confirmation with order details
+            customer_subject = "Your TrendyOft Order Confirmation"
+            customer_body = f"Thank you for your order!\nYour order has been successfully placed with ID: {order_id}.\n\nHere are your order details:\n{order_items_description}\nTotal Amount: ${order_data['total_amount']:.2f}\n\nWe will process your order promptly and send you updates."
+            if customer_email:
+                send_email(customer_subject, customer_body, customer_email, customer_name)
+
             return order_id
         except HTTPException as e:
             conn.rollback()
@@ -1600,6 +1695,7 @@ async def place_order(order: OrderCreate, user_email: str = Depends(verify_token
         order_data = order.dict()
         order_data['customer_id'] = customer['id']
         order_data['shipping_address_id'] = shipping_address_id
+        order_data['email'] = user_email  # Pass customer email for notifications
 
         # Create order using the existing function
         try:

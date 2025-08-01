@@ -12,7 +12,11 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
+            
             <div class="nav-brand">Trendyoft</div>
+            
+                
+            
             <div class="nav-menu" id="nav-menu">
                 <button class="close-menu-btn" onclick="toggleMobileMenu()">×</button>
                 <a href="#" class="nav-link active" data-page="home">Home</a>
@@ -1118,7 +1122,7 @@ async function increaseQuantity() {
         let cart = [];
         
         // Backend API Configuration
-        const API_BASE_URL = 'https://trendyoft-website.onrender.com'; // Update with your backend API URL
+        const API_BASE_URL = 'http://127.0.0.1:8000'; // Update with your backend API URL
         
         // Function to fetch products from backend API
         async function fetchProductsFromAPI() {
