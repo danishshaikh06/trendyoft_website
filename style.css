@@ -3605,5 +3605,4 @@ button:focus,
 input:focus,
 a:focus {
     outline: 2px solid #059669;
-    outline-offset: 2px;
-}
+    outline-offset: 2px;}
