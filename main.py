@@ -291,8 +291,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Create images directory structure if it doesn't exist
-IMAGES_DIR = "images"
+# Create images directory structure in /tmp if it doesn't exist
+IMAGES_DIR = "/tmp/images"
 THUMBNAIL_DIR = os.path.join(IMAGES_DIR, "thumbnails")
 MAIN_DIR = os.path.join(IMAGES_DIR, "main")
 ORIGINAL_DIR = os.path.join(IMAGES_DIR, "original")
@@ -302,7 +302,7 @@ for directory in [IMAGES_DIR, THUMBNAIL_DIR, MAIN_DIR, ORIGINAL_DIR]:
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-# Mount static files for serving images
+# Mount static files for serving images from /tmp
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
 # Mount static files for serving the website
