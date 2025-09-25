@@ -13,7 +13,7 @@
     <nav class="navbar">
         <div class="nav-container">
             
-            <div class="nav-brand">Trendyoft</div>
+            <div class="nav-brand" onclick="showPage('home')" style="cursor: pointer;">Trendyoft</div>
             
                 
             
@@ -1243,7 +1243,7 @@ async function increaseQuantity() {
                         category: product.category,
                         tags: tags,
                         image: getProductImageClass(product.title), // Use existing image classes
-                        imageUrl: `${API_BASE_URL}${product.image_url}`, // Backend image URL
+                        imageUrl: product.image_url, // Direct Cloudinary URL
                         description: product.description,
                         quantity: product.quantity
                     };
@@ -1640,7 +1640,7 @@ async function increaseQuantity() {
                         const isOutOfStock = product.quantity === 0;
                         return `
                             <div class="product-card">
-                                <div class="product-image ${product.image}" onclick="viewProductDetails('${product.name}')" style="background-image: url('${product.imageUrl || ''}')"></div>
+                                <div class="product-image" onclick="viewProductDetails('${product.name}')" style="background-image: url('${product.imageUrl || ''}'); background-size: cover; background-position: center;"></div>
                                 <h3 onclick="viewProductDetails('${product.name}')">${product.name}</h3>
                                 <p class="price">USD $${product.price.toFixed(2)}</p>
                                 ${isOutOfStock ? 
