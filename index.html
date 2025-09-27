@@ -1,0 +1,2930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendyoft - Modern Lifestyle Store</title>
+    <link rel="stylesheet" href="style.css?v=20250725-mobile-fix">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            
+            <div class="nav-brand" onclick="showPage('home')" style="cursor: pointer;">Trendyoft</div>
+            
+                
+            
+            <div class="nav-menu" id="nav-menu">
+                <button class="close-menu-btn" onclick="toggleMobileMenu()">×</button>
+                <a href="#" class="nav-link active" data-page="home">Home</a>
+                <a href="#" class="nav-link" data-page="return-policy">Return Policy</a>
+                <a href="#" class="nav-link" data-page="reviews">Rating</a>
+                <a href="#" class="nav-link" data-page="login" id="login-link">Login</a>
+                <div id="profile-menu" class="profile-menu" style="display: none;">
+                    <span id="username-display" class="username-display"></span>
+                    <a href="#" class="nav-link" data-page="my-orders" id="my-orders-link">My Orders</a>
+                    <button id="signout-button" class="signout-btn">Sign Out</button>
+                </div>
+                <a href="#" class="nav-link" data-page="checkout">Checkout</a>
+            </div>
+            <div class="nav-actions">
+                <button class="search-btn" onclick="toggleSearch()">🔍</button>
+                <button class="cart-btn" onclick="showPage('cart')">🛒 <span id="cart-count" class="cart-count">0</span></button>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <span class="menu-icon-bar"></span>
+                    <span class="menu-icon-bar"></span>
+                    <span class="menu-icon-bar"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="search-modal">
+        <div class="search-modal-content">
+            <div class="search-header">
+                <input type="text" id="search-input" placeholder="Search for products..." autocomplete="off">
+                <button class="close-search" onclick="toggleSearch()">×</button>
+            </div>
+            <div id="search-results" class="search-results">
+                <div class="search-suggestions">
+                    <p>Try searching for: "Striped", "Mountain", "Green", "Coral"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Page -->
+    <section id="home" class="page active">
+        <!-- Hero Section -->
+        <div class="hero">
+            <!-- Stars background -->
+            <div class="stars"></div>
+            
+            <!-- 3D Geometric shapes -->
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+            <div class="shape shape-6"></div>
+            <div class="shape shape-7"></div>
+            
+            <!-- Main content -->
+            <div class="hero-content">
+                <h1 class="main-title">
+                    <span class="gradient-text">Internet's Coolest</span><br>
+                    <span class="white-text">Products, Delivered</span>
+                </h1>
+                
+                <p class="subtitle">
+                    We find what's trending and ship it straight to you.<br>
+                    <span class="highlight">Carefully curated, always fresh.</span>
+                </p>
+                
+                <button class="cta-button" onclick="showPage('shop')">Shop Now</button>
+            </div>
+        </div>
+
+        <!-- Featured Products -->
+        <div class="featured-section">
+            <div class="container">
+                <!-- Section Header -->
+                <div class="section-header">
+                    <div class="section-badge">✨ Trending Now</div>
+                    <h2 class="section-title">
+                        <span class="gradient-text">Handpicked</span> Products
+                    </h2>
+                    <p class="section-subtitle">Discover the most talked-about items that everyone's loving</p>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="products-container">
+                    <!-- Scroll Navigation -->
+                    <div class="scroll-navigation">
+                        <button class="scroll-btn scroll-left" onclick="scrollProducts('left')" id="scroll-left">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m15 18-6-6 6-6"></path>
+                            </svg>
+                        </button>
+                        <button class="scroll-btn scroll-right" onclick="scrollProducts('right')" id="scroll-right">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m9 18 6-6-6-6"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="products-grid" id="products-grid">
+                        <div class="product-card modern">
+                            <div class="card-glow"></div>
+                            <div class="product-image-wrapper">
+                                <div class="product-image product-1" onclick="viewProductDetails('Striped Adventure Tee')"></div>
+                                <div class="product-overlay">
+                                    <button class="quick-view" onclick="viewProductDetails('Striped Adventure Tee')">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        Quick View
+                                    </button>
+                                </div>
+                                <div class="product-badge trending">🔥 Trending</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title" onclick="viewProductDetails('Striped Adventure Tee')">Striped Adventure Tee</h3>
+                                <p class="product-description">Perfect for outdoor adventures</p>
+                                <div class="product-rating">
+                                    <div class="stars">★★★★★</div>
+                                    <span class="rating-count">(24)</span>
+                                </div>
+                                <div class="product-footer">
+                                    <div class="price-section">
+                                        <span class="price-current">$19.99</span>
+                                        <span class="price-original">$29.99</span>
+                                    </div>
+                                    <button class="add-to-cart modern">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="m1 1 4 4 14 2-14 5 14 2"></path>
+                                        </svg>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="product-card modern">
+                            <div class="card-glow"></div>
+                            <div class="product-image-wrapper">
+                                <div class="product-image product-2" onclick="viewProductDetails('Mountain Sunset Shirt')"></div>
+                                <div class="product-overlay">
+                                    <button class="quick-view" onclick="viewProductDetails('Mountain Sunset Shirt')">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        Quick View
+                                    </button>
+                                </div>
+                                <div class="product-badge new">✨ New</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title" onclick="viewProductDetails('Mountain Sunset Shirt')">Mountain Sunset Shirt</h3>
+                                <p class="product-description">Inspired by mountain sunsets</p>
+                                <div class="product-rating">
+                                    <div class="stars">★★★★☆</div>
+                                    <span class="rating-count">(18)</span>
+                                </div>
+                                <div class="product-footer">
+                                    <div class="price-section">
+                                        <span class="price-current">$19.99</span>
+                                    </div>
+                                    <button class="add-to-cart modern">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="m1 1 4 4 14 2-14 5 14 2"></path>
+                                        </svg>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="product-card modern">
+                            <div class="card-glow"></div>
+                            <div class="product-image-wrapper">
+                                <div class="product-image product-3" onclick="viewProductDetails('Forest Green Classic')"></div>
+                                <div class="product-overlay">
+                                    <button class="quick-view" onclick="viewProductDetails('Forest Green Classic')">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        Quick View
+                                    </button>
+                                </div>
+                                <div class="product-badge sale">💚 Sale</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title" onclick="viewProductDetails('Forest Green Classic')">Forest Green Classic</h3>
+                                <p class="product-description">Timeless eco-friendly design</p>
+                                <div class="product-rating">
+                                    <div class="stars">★★★★★</div>
+                                    <span class="rating-count">(31)</span>
+                                </div>
+                                <div class="product-footer">
+                                    <div class="price-section">
+                                        <span class="price-current">$19.99</span>
+                                        <span class="price-original">$24.99</span>
+                                    </div>
+                                    <button class="add-to-cart modern">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="m1 1 4 4 14 2-14 5 14 2"></path>
+                                        </svg>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="product-card modern">
+                            <div class="card-glow"></div>
+                            <div class="product-image-wrapper">
+                                <div class="product-image product-5" onclick="viewProductDetails('Ocean Green Hodieee')"></div>
+                                <div class="product-overlay">
+                                    <button class="quick-view" onclick="viewProductDetails('Ocean Green Hodieee')">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        Quick View
+                                    </button>
+                                </div>
+                                <div class="product-badge sale">💚 Sale</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title" onclick="viewProductDetails('Ocean Green Hodieee')">Ocean Green Hodieee</h3>
+                                <p class="product-description">Timeless eco-friendly design</p>
+                                <div class="product-rating">
+                                    <div class="stars">★★★★★</div>
+                                    <span class="rating-count">(31)</span>
+                                </div>
+                                <div class="product-footer">
+                                    <div class="price-section">
+                                        <span class="price-current">$19.99</span>
+                                        <span class="price-original">$24.99</span>
+                                    </div>
+                                    <button class="add-to-cart modern">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="m1 1 4 4 14 2-14 5 14 2"></path>
+                                        </svg>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="product-card modern">
+                            <div class="card-glow"></div>
+                            <div class="product-image-wrapper">
+                                <div class="product-image product-5" onclick="viewProductDetails('Hitesh')"></div>
+                                <div class="product-overlay">
+                                    <button class="quick-view" onclick="viewProductDetails('Hitesh')">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        Quick View
+                                    </button>
+                                </div>
+                                <div class="product-badge sale">💚 Sale</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title" onclick="viewProductDetails('Hitesh')">Hitesh</h3>
+                                <p class="product-description">Timeless eco-friendly design</p>
+                                <div class="product-rating">
+                                    <div class="stars">★★★★★</div>
+                                    <span class="rating-count">(31)</span>
+                                </div>
+                                <div class="product-footer">
+                                    <div class="price-section">
+                                        <span class="price-current">$19.99</span>
+                                        <span class="price-original">$24.99</span>
+                                    </div>
+                                    <button class="add-to-cart modern">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="m1 1 4 4 14 2-14 5 14 2"></path>
+                                        </svg>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        
+                        <div class="product-card modern">
+                            <div class="card-glow"></div>
+                            <div class="product-image-wrapper">
+                                <div class="product-image product-4" onclick="viewProductDetails('Coral Comfort Tee')"></div>
+                                <div class="product-overlay">
+                                    <button class="quick-view" onclick="viewProductDetails('Coral Comfort Tee')">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        Quick View
+                                    </button>
+                                </div>
+                                <div class="product-badge limited">⚡ Limited</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title" onclick="viewProductDetails('Coral Comfort Tee')">Coral Comfort Tee</h3>
+                                <p class="product-description">Vibrant comfort all day long</p>
+                                <div class="product-rating">
+                                    <div class="stars">★★★★☆</div>
+                                    <span class="rating-count">(12)</span>
+                                </div>
+                                <div class="product-footer">
+                                    <div class="price-section">
+                                        <span class="price-current">$19.99</span>
+                                    </div>
+                                    <button class="add-to-cart modern">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="m1 1 4 4 14 2-14 5 14 2"></path>
+                                        </svg>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- View All Button -->
+                <div class="section-footer">
+                    <button class="view-all-btn" onclick="showPage('shop')">
+                        <span>View All Products</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Page -->
+    <section id="login" class="page">
+        <div class="container">
+            <div class="auth-container">
+                <div id="login-form-container" class="form-container">
+                    <div class="form-header">
+                        <h2>Welcome Back</h2>
+                        <p>Sign in to your account</p>
+                    </div>
+                    <form id="login-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="login-email">Email Address</label>
+                            <input type="email" id="login-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" name="password" required>
+                        </div>
+                        <button type="submit" class="form-button">Sign In</button>
+                        <div class="form-footer">
+                            <p>Don't have an account? <a href="#" id="show-register">Sign up</a></p>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="register-form-container" class="form-container" style="display: none;">
+                    <div class="form-header">
+                        <h2>Create Account</h2>
+                        <p>Join Trendyoft today</p>
+                    </div>
+                    <form id="register-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="register-username">Username</label>
+                            <input type="text" id="register-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">Email Address</label>
+                            <input type="email" id="register-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password</label>
+                            <input type="password" id="register-password" name="password" required>
+                        </div>
+                        <button type="submit" class="form-button">Create Account</button>
+                        <div class="form-footer">
+                            <p>Already have an account? <a href="#" id="show-login">Sign in</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Checkout Page -->
+    <section id="checkout" class="page">
+        <div class="container">
+            <div class="checkout-container">
+                <div class="checkout-form">
+                    <h2>Checkout</h2>
+                    <form class="checkout-form-content">
+                        <div class="form-section">
+                            <h3>Shipping Information</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" id="firstName" name="firstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name</label>
+                                    <input type="text" id="lastName" name="lastName" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phoneNumber">Phone Number</label>
+                                <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="+1 (555) 123-4567" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Address</label>
+                                <input type="text" id="address" name="address" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="city">City</label>
+                                    <input type="text" id="city" name="city" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="country">Country/Region</label>
+                                    <select id="country" name="country" required>
+                                        <option value="">Select Country</option>
+                                        <option value="us">United States</option>
+                                        <option value="ca">Canada</option>
+                                        <option value="uk">United Kingdom</option>
+                                        <option value="de">Germany</option>
+                                        <option value="fr">France</option>
+                                        <option value="it">Italy</option>
+                                        <option value="es">Spain</option>
+                                        <option value="nl">Netherlands</option>
+                                        <option value="be">Belgium</option>
+                                        <option value="ch">Switzerland</option>
+                                        <option value="au">Australia</option>
+                                        <option value="nz">New Zealand</option>
+                                        <option value="jp">Japan</option>
+                                        <option value="kr">South Korea</option>
+                                        <option value="sg">Singapore</option>
+                                        <option value="hk">Hong Kong</option>
+                                        <option value="ae">UAE</option>
+                                        <option value="sa">Saudi Arabia</option>
+                                        <option value="in">India</option>
+                                        <option value="pk">Pakistan</option>
+                                        <option value="bd">Bangladesh</option>
+                                        <option value="mx">Mexico</option>
+                                        <option value="br">Brazil</option>
+                                        <option value="ar">Argentina</option>
+                                        <option value="za">South Africa</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="zipCode">ZIP/Postal Code</label>
+                                    <input type="text" id="zipCode" name="zipCode" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="deliveryInstructions">Delivery Instructions</label>
+                                <textarea id="deliveryInstructions" name="deliveryInstructions" rows="3" placeholder="Do we need additional instructions to find this address? (e.g., apartment number, building name, landmarks, gate code, etc.)"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Payment Information</h3>
+                            <div class="form-group">
+                                <label for="cardNumber">Card Number</label>
+                                <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="expiryDate">Expiry Date</label>
+                                    <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cvv">CVV</label>
+                                    <input type="text" id="cvv" name="cvv" placeholder="123" required>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="form-button" onclick="placeOrder(event)">Place Order</button>
+                    </form>
+                </div>
+
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <div id="checkout-items" class="checkout-items">
+                        <!-- Cart items will be displayed here -->
+                    </div>
+                    <div id="checkout-empty" class="checkout-empty" style="display: none;">
+                        <p>Your cart is empty</p>
+                        <button class="form-button" onclick="showPage('home')">Continue Shopping</button>
+                    </div>
+                    <div id="checkout-summary" class="checkout-summary" style="display: none;">
+                        <div class="promo-code-section">
+                            <div class="promo-input-group">
+                                <input type="text" id="promo-code" class="promo-input" placeholder="Enter promo code">
+                                <button type="button" class="promo-btn" onclick="applyPromoCode()">Apply</button>
+                            </div>
+                            <div id="promo-message" class="promo-message"></div>
+                        </div>
+                        
+                        <div class="summary-divider"></div>
+                        
+                        <div class="price-breakdown">
+                            <div class="price-row">
+                                <span>Subtotal:</span>
+                                <span id="checkout-subtotal">USD $0.00</span>
+                            </div>
+                            <div id="discount-row" class="price-row discount-row" style="display: none;">
+                                <span>Discount (<span id="discount-code"></span>):</span>
+                                <span id="discount-amount">-USD $0.00</span>
+                            </div>
+                            <div class="price-row total-row">
+                                <span>Total:</span>
+                                <span id="checkout-total">USD $0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shop Page -->
+    <section id="shop" class="page">
+        <div class="container">
+            <div class="shop-header">
+                <h2>Shop All Products</h2>
+                <div class="filter-section">
+                    <div class="filter-dropdown">
+                        <button class="filter-toggle" id="filter-toggle">
+                            <span class="filter-icon">🔍</span>
+                            <span class="filter-text">Filter by Category</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="filter-dropdown-content" id="filter-dropdown-content">
+                            <button class="filter-option active" data-category="all">
+                                <span class="category-name">All Products</span>
+                                <span class="category-count" id="count-all">0</span>
+                            </button>
+                            <div id="dynamic-categories">
+                                <!-- Dynamic categories will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="active-filters" id="active-filters">
+                        <span class="active-filter-label">Showing: <strong>All Products</strong></span>
+                    </div>
+                </div>
+            </div>
+            <div class="shop-results">
+                <div id="shop-products" class="shop-products-grid">
+                    <!-- Products will be displayed here -->
+                </div>
+                <div id="no-products" class="no-products" style="display: none;">
+                    <p>No products found in this category.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Page -->
+    <section id="cart" class="page">
+        <div class="container">
+            <div class="cart-container">
+                <h2>Shopping Cart</h2>
+                <div id="cart-items" class="cart-items">
+                    <!-- Cart items will be displayed here -->
+                </div>
+                <div id="cart-empty" class="cart-empty" style="display: none;">
+                    <p>Your cart is empty</p>
+                    <button class="form-button" onclick="showPage('home')">Continue Shopping</button>
+                </div>
+                <div id="cart-summary" class="cart-summary" style="display: none;">
+                    <div class="summary-row">
+                        <span>Total Items:</span>
+                        <span id="total-items">0</span>
+                    </div>
+                    <div class="summary-row total-row">
+                        <span>Total:</span>
+                        <span id="total-price">USD $0.00</span>
+                    </div>
+                    <div class="cart-actions">
+                        <button class="form-button" onclick="showPage('checkout')">Proceed to Checkout</button>
+                        <button class="secondary-button" onclick="clearCart()">Clear Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Details Page -->
+    <section id="product-details" class="page">
+        <div class="container">
+            <div class="product-page-container">
+                <!-- IMAGE SECTION -->
+                <div class="product-image-section">
+                    <div class="main-product-image" id="product-main-image" style="background-image: url();"></div>
+                </div>
+                <!-- PRODUCT DETAILS SECTION -->
+                <div class="product-details-section">
+                    <h1 class="product-title" id="product-title"></h1>
+                    <div class="price-container">
+                        <span class="current-price" id="product-price"></span>
+                        <span class="original-price"></span>
+                    </div>
+                    <div class="description-section">
+                        <h3 class="description-title">Description</h3>
+                        <p class="description-text" id="product-description-text"></p>
+                    </div>
+                    <div class="quantity-section">
+                        <h3 class="quantity-title">Quantity</h3>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="decreaseQuantity()">−</button>
+                            <input type="number" class="quantity-input" value="1" min="1" id="quantity">
+                            <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                        </div>
+                    </div>
+                    <div class="product-options">
+                        <div class="size-selector">
+                            <h4>Size</h4>
+                            <div class="size-options">
+                                <button class="size-btn" data-size="XS">XS</button>
+                                <button class="size-btn" data-size="S">S</button>
+                                <button class="size-btn active" data-size="M">M</button>
+                                <button class="size-btn" data-size="L">L</button>
+                                <button class="size-btn" data-size="XL">XL</button>
+                                <button class="size-btn" data-size="XXL">XXL</button>
+                                <button class="size-btn" data-size="XXXL">XXXL</button>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="addProductToCart()">Add to Cart</button>
+                            <button class="btn btn-secondary" onclick="buyNow()">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <style>
+        /* Mobile Menu Styles */
+        .mobile-menu-btn {
+            display: none; /* Hidden by default */
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 1rem;
+            z-index: 10000;
+            width: 24px;
+            height: 21px;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .menu-icon-bar {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #333;
+            border-radius: 2px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .mobile-menu-btn.active .menu-icon-bar:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .mobile-menu-btn.active .menu-icon-bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-btn.active .menu-icon-bar:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        .close-menu-btn {
+            display: none; /* Hidden on desktop */
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                right: -100%; /* Start completely off-screen */
+                width: 300px;
+                height: 100vh;
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                backdrop-filter: blur(10px);
+                box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
+                display: flex;
+                flex-direction: column;
+                padding: 3rem 1.5rem 2rem;
+                transform: translateX(100%);
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 9999;
+                overflow-y: auto;
+            }
+
+            .nav-menu.mobile-active {
+                right: 0;
+                transform: translateX(0);
+            }
+
+            .nav-link {
+                padding: 1rem 1.5rem;
+                margin: 0.3rem 0;
+                font-size: 1.1rem;
+                font-weight: 500;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 50px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: none;
+                background: transparent;
+                text-align: left;
+                display: block;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .nav-link::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+                transition: left 0.5s;
+            }
+
+            .nav-link:hover::before {
+                left: 100%;
+            }
+
+            .nav-link:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: #ffffff;
+                transform: translateX(5px);
+                box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+            }
+
+            .nav-link.active {
+                background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%);
+                color: #ffffff;
+                font-weight: 600;
+                box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+                transform: scale(1.02);
+            }
+
+            .nav-link.active::before {
+                display: none;
+            }
+
+            .profile-menu {
+                background: rgba(255, 255, 255, 0.05);
+                padding: 1rem 1.5rem;
+                margin: 1rem 0;
+                border-radius: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .username-display {
+                color: #ffffff;
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 0.8rem;
+                display: block;
+                text-align: center;
+            }
+
+            .signout-btn {
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+                color: #ffffff;
+                border: 1px solid rgba(239, 68, 68, 0.5);
+                padding: 0.6rem 1.2rem;
+                border-radius: 25px;
+                font-size: 0.9rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                width: 100%;
+            }
+
+            .signout-btn:hover {
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                color: #ffffff;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .close-menu-btn {
+                display: block;
+                color: #ffffff;
+                font-size: 1.8rem;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                position: absolute;
+                top: 1rem;
+                right: 1.5rem;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .close-menu-btn:hover {
+                background: rgba(139, 92, 246, 0.3);
+                color: #c084fc;
+                transform: rotate(90deg) scale(1.1);
+            }
+            
+            .nav-actions {
+                display: flex;
+                align-items: center;
+            }
+
+            /* Add menu separator */
+            .nav-menu::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 4px;
+                height: 100%;
+                background: linear-gradient(180deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%);
+            }
+        }
+        /* Product Details Page Styles from index11.html */
+        .product-page-container { max-width: 500px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .product-image-section { width: 100%; padding: 20px; background: white; }
+        .main-product-image { width: 100%; height: 350px; border-radius: 12px; background-size: contain; background-position: center center; background-repeat: no-repeat; background-color: #f8f9fa; border: 1px solid #e9ecef; display: block; overflow: hidden; margin-bottom: 15px; }
+        .product-details-section { padding: 0 20px 20px 20px; }
+        .product-title { font-size: 28px; font-weight: 700; color: #2c3e50; margin-bottom: 15px; text-align: center; }
+        .price-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; justify-content: center; }
+        .current-price { font-size: 24px; font-weight: 700; color: #28a745; }
+        .original-price { font-size: 18px; text-decoration: line-through; color: #6c757d; }
+        .description-section { margin-bottom: 25px; }
+        .description-title { font-size: 18px; font-weight: 600; color: #2c3e50; margin-bottom: 8px; }
+        .description-text { color: #6c757d; font-size: 16px; line-height: 1.6; }
+        .quantity-section { margin-bottom: 25px; }
+        .quantity-title { font-size: 18px; font-weight: 600; color: #2c3e50; margin-bottom: 10px; }
+        .quantity-controls { display: flex; align-items: center; justify-content: center; gap: 0; width: fit-content; margin: 0 auto; border: 2px solid #e9ecef; border-radius: 8px; overflow: hidden; }
+        .quantity-btn { background: #f8f9fa; border: none; width: 45px; height: 45px; font-size: 20px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .quantity-btn:hover { background: #e9ecef; }
+        .quantity-input { border: none; width: 60px; height: 45px; text-align: center; font-size: 16px; font-weight: 600; background: white; }
+        .action-buttons { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .btn { padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn-primary { background: #28a745; color: white; }
+        .btn-primary:hover { background: #218838; transform: translateY(-2px); }
+        .btn-secondary { background: #343a40; color: white; }
+        .btn-secondary:hover { background: #23272b; transform: translateY(-2px); }
+        .wow-section { text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: 20px; border-radius: 12px; }
+        .wow-text { font-size: 24px; font-weight: 700; letter-spacing: 2px; }
+
+        /* My Orders Page Styles */
+        .orders-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .orders-container h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .order-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e9ecef;
+        }
+        .order-header {
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .order-header h3 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        .order-date, .order-total {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+        }
+        .item-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .item-name {
+            font-weight: 600;
+        }
+        .item-qty {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .no-orders {
+            text-align: center;
+            padding: 2rem;
+        }
+        @media (max-width: 480px) {
+            .main-product-image { height: 280px; }
+            .product-title { font-size: 24px; }
+            .current-price { font-size: 20px; }
+        }
+    </style>
+    <script>
+async function increaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            const currentVal = parseInt(quantityInput.value);
+
+            if (currentProduct && currentVal < currentProduct.quantity) {
+                quantityInput.value = currentVal + 1;
+                productQuantity = parseInt(quantityInput.value);
+            } else {
+                alert("You've reached the maximum available stock for this item.");
+            }
+        }
+        function decreaseQuantity() { 
+            const quantityInput = document.getElementById('quantity'); 
+            if (parseInt(quantityInput.value) > 1) { 
+                quantityInput.value = parseInt(quantityInput.value) - 1; 
+                productQuantity = parseInt(quantityInput.value);
+            } 
+        }
+    </script>
+
+    <!-- Return Policy Page -->
+    <section id="return-policy" class="page">
+        <div class="container">
+            <div class="policy-container">
+                <h1>Return Policy</h1>
+                <p class="policy-intro">Thank you for shopping with Trendyoft. If you are not entirely satisfied with your purchase, we're here to help.</p>
+                
+                <div class="policy-section">
+                    <h2>30-Day Return Window</h2>
+                    <p>You have <strong>30 calendar days</strong> to return an item from the date you received it. We believe this gives you ample time to try out your purchase and make sure it's perfect for you.</p>
+                </div>
+                
+                <div class="policy-section">
+                    <h2>Return Conditions</h2>
+                    <p>To be eligible for a return, your item must be:</p>
+                    <ul class="policy-list">
+                        <li>Unused and in the same condition that you received it</li>
+                        <li>In the original packaging</li>
+                        <li>With all tags attached</li>
+                        <li>Include proof of purchase (receipt or order confirmation)</li>
+                    </ul>
+                </div>
+                
+                <div class="policy-section">
+                    <h2>How to Initiate a Return</h2>
+                    <p>Starting a return is easy! Just follow these simple steps:</p>
+                    <ol class="policy-steps">
+                        <li><strong>Contact Us:</strong> Email our customer service team at <a href="mailto:support@trendyoft.com">support@trendyoft.com</a></li>
+                        <li><strong>Provide Details:</strong> Include your order number and reason for return</li>
+                        <li><strong>Get Return Label:</strong> We'll send you a prepaid return shipping label</li>
+                        <li><strong>Pack & Ship:</strong> Pack your item securely and ship it back to us</li>
+                        <li><strong>Receive Refund:</strong> Once we receive and inspect your return, we'll process your refund within 3-5 business days</li>
+                    </ol>
+                </div>
+                
+                <div class="policy-section">
+                    <h2>Refund Processing</h2>
+                    <p>Refunds will be processed to your original payment method. Please allow 3-5 business days for the refund to appear in your account after we process it.</p>
+                </div>
+                
+                <div class="policy-section">
+                    <h2>Questions?</h2>
+                    <p>If you have any questions about returns or need assistance, don't hesitate to reach out to our friendly customer service team at <a href="mailto:support@trendyoft.com">support@trendyoft.com</a>. We're here to help!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Page -->
+    <section id="reviews" class="page">
+        <div class="container">
+            <div class="reviews-container">
+                <h1>Customer Reviews</h1>
+                <p class="reviews-intro">See what our customers are saying about their experience with Trendyoft!</p>
+                
+                <div class="reviews-list">
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="reviewer-name">Sarah M.</div>
+                            <div class="review-rating">⭐⭐⭐⭐⭐</div>
+                        </div>
+                        <h3 class="review-title">Amazing quality and fast shipping!</h3>
+                        <p class="review-text">"Great products and fast shipping! Loved the eco-friendly packaging. The quality exceeded my expectations and the customer service was top-notch!"</p>
+                        <div class="review-date">Verified Purchase - January 2024</div>
+                    </div>
+                    
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="reviewer-name">Jane D.</div>
+                            <div class="review-rating">⭐⭐⭐⭐⭐</div>
+                        </div>
+                        <h3 class="review-title">Excellent customer service!</h3>
+                        <p class="review-text">"The customer service was very responsive and helpful. Had an issue with my order and they resolved it quickly! Will definitely shop here again."</p>
+                        <div class="review-date">Verified Purchase - December 2023</div>
+                    </div>
+                    
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="reviewer-name">Mike R.</div>
+                            <div class="review-rating">⭐⭐⭐⭐⭐</div>
+                        </div>
+                        <h3 class="review-title">Unique trending products!</h3>
+                        <p class="review-text">"Found some amazing trending products here that I couldn't find anywhere else. The quality is top-notch and the prices are very reasonable!"</p>
+                        <div class="review-date">Verified Purchase - November 2023</div>
+                    </div>
+                </div>
+
+                <div class="review-form-section">
+                    <h2>Leave a Review</h2>
+                    <p>Share your experience with other customers!</p>
+                    
+                    <form class="review-form" id="review-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reviewer-name">Your Name</label>
+                                <input type="text" id="reviewer-name" name="reviewer-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewer-email">Email Address</label>
+                                <input type="email" id="reviewer-email" name="reviewer-email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="rating">Rating</label>
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="rating" value="5" required>
+                                <label for="star5">⭐</label>
+                                <input type="radio" id="star4" name="rating" value="4">
+                                <label for="star4">⭐</label>
+                                <input type="radio" id="star3" name="rating" value="3">
+                                <label for="star3">⭐</label>
+                                <input type="radio" id="star2" name="rating" value="2">
+                                <label for="star2">⭐</label>
+                                <input type="radio" id="star1" name="rating" value="1">
+                                <label for="star1">⭐</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="review-title">Review Title</label>
+                            <input type="text" id="review-title" name="review-title" placeholder="Sum up your experience..." required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="review-text">Your Review</label>
+                            <textarea id="review-text" name="review-text" rows="5" placeholder="Tell us about your experience with our products and service..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="form-button">Submit Review</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Order Placed Page -->
+    <section id="order-placed" class="page">
+        <div class="container">
+            <div class="success-container">
+                <div class="success-icon">✓</div>
+                <h2>Order Placed Successfully!</h2>
+                <p>Thank you for your purchase. Your order has been confirmed.</p>
+                
+                <div class="order-details">
+                    <h3>Order Details</h3>
+                    <div class="order-info">
+                        <div class="info-row">
+                            <span class="label">Order Number:</span>
+                            <span class="value">#TRD-2024-001</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Estimated Delivery:</span>
+                            <span class="value">7-18 business days</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Total Amount:</span>
+                            <span class="value">USD. $39.98</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-actions">
+                    <button class="form-button" onclick="showPage('home')">Continue Shopping</button>
+                    <button class="secondary-button">Track Order</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- My Orders Page -->
+    <section id="my-orders" class="page">
+        <div class="container">
+            <div class="orders-container">
+                <h2>My Orders</h2>
+                <div id="orders-list" class="orders-list"></div>
+                <div id="no-orders" class="no-orders" style="display: none;">
+                    <p>You have no orders yet.</p>
+                    <button class="form-button" onclick="showPage('shop')">Start Shopping</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Cart functionality
+        let cart = [];
+        
+        // Backend API Configuration
+        const API_BASE_URL = 'https://trendyoft-website.onrender.com'; // Update with your backend API URL
+        
+        // Function to fetch products from backend API
+        async function fetchProductsFromAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/products/`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const apiProducts = await response.json();
+                
+                // Transform API data to match frontend format
+                return apiProducts.map(product => {
+                    // Determine tags based on product name and category
+                    let tags = [];
+                    
+                    // Trending items - Adventure and Mountain themed
+                    if (product.title.toLowerCase().includes('adventure') || product.title.toLowerCase().includes('mountain')) {
+                        tags.push('trending');
+                    }
+                    
+                    // New arrivals - Striped and Coral items
+                    if (product.title.toLowerCase().includes('striped') || product.title.toLowerCase().includes('coral')) {
+                        tags.push('new-arrivals');
+                    }
+                    
+                    // Sale items - Forest and Green themed
+                    if (product.title.toLowerCase().includes('forest') || product.title.toLowerCase().includes('green')) {
+                        tags.push('sale');
+                    }
+                    
+                    // Add base category to tags for easier filtering
+                    tags.push(product.category);
+                    
+                    return {
+                        id: product.id,
+                        name: product.title,
+                        price: product.price,
+                        category: product.category,
+                        tags: tags,
+                        image: getProductImageClass(product.title), // Use existing image classes
+                        imageUrl: product.image_url, // Direct Cloudinary URL
+                        description: product.description,
+                        quantity: product.quantity
+                    };
+                });
+            } catch (error) {
+                console.error('Error fetching products from API:', error);
+                // Fallback to static products if API fails
+                return getStaticProducts();
+            }
+        }
+        
+        // Helper function to get image class based on product name
+        function getProductImageClass(productName) {
+            if (productName.toLowerCase().includes('striped')) return 'product-1';
+            if (productName.toLowerCase().includes('mountain')) return 'product-2';
+            if (productName.toLowerCase().includes('forest')) return 'product-3';
+            if (productName.toLowerCase().includes('coral')) return 'product-4';
+            return 'product-1'; // Default
+        }
+        
+        // Fallback static products (in case API is not available)
+        function getStaticProducts() {
+            return [
+                {
+                    id: 'static-1',
+                    name: 'Striped Adventure Tee',
+                    price: 19.99 ,
+                    category: 't-shirts',
+                    tags: ['trending', 't-shirts'],
+                    image: 'product-1',
+                    description: 'Perfect for outdoor adventures with its comfortable striped design.'
+                },
+                {
+                    id: 'static-2',
+                    name: 'Mountain Sunset Shirt',
+                    price: 19.99,
+                    category: 'shirts',
+                    tags: ['trending', 'shirts'],
+                    image: 'product-2',
+                    description: 'Inspired by beautiful mountain sunsets, this shirt combines style with functionality.'
+                },
+                {
+                    id: 'static-3',
+                    name: 'Forest Green Classic',
+                    price: 19.99,
+                    category: 't-shirts',
+                    tags: ['sale', 't-shirts'],
+                    image: 'product-3',
+                    description: 'A timeless forest green design that never goes out of style.'
+                },
+                {
+                    id: 'static-4',
+                    name: 'Coral Comfort Tee',
+                    price: 19.99,
+                    category: 't-shirts',
+                    tags: ['new-arrivals', 't-shirts'],
+                    image: 'product-4',
+                    description: 'Vibrant coral color that brightens any wardrobe.'
+                },
+
+                {
+                    id: 'static-5',
+                    name: 'Ocean Green Hodieee',
+                    price: 25.99,
+                    category: 't-shirts',
+                    tags: ['new-arrivals', 't-shirts'],
+                    image: '"C:\\Users\\shaik\\Downloads\\phone holder (1).jpg"',
+                    description: 'Vibrant coral color that brightens any wardrobe.'
+                },
+                {
+                    id: 'static-6',
+                    name: 'k',
+                    price: 25.99,
+                    category: 't-shirts',
+                    tags: ['new-arrivals', 't-shirts'],
+                    image: 'product-6',
+                    description: 'Vibrant coral color that brightens any wardrobe.'
+                },
+                {
+                    id: 'static-7',
+                    name: 'kk',
+                    price: 25.99,
+                    category: 't-shirts',
+                    tags: ['new-arrivals', 't-shirts'],
+                    image: 'product-7',
+                    description: 'Vibrant coral color that brightens any wardrobe.'
+                },
+                {
+                    id: 'static-8',
+                    name: 'kkk',
+                    price: 25.99,
+                    category: 't-shirts',
+                    tags: ['new-arrivals', 't-shirts'],
+                    image: 'product-8',
+                    description: 'Vibrant coral color that brightens any wardrobe.'
+                },
+                {
+                    id: 'static-9',
+                    name: 'kkkk',
+                    price: 25.99,
+                    category: 't-shirts',
+                    tags: ['new-arrivals', 't-shirts'],
+                    image: 'product-9',
+                    description: 'Vibrant coral color that brightens any wardrobe.'
+                },
+                {
+                    id: 'static-10',
+                    name: 'kkkkk',
+                    price: 25.99,
+                    category: 't-shirts',
+                    tags: ['new-arrivals', 't-shirts'],
+                    image: 'product-10',
+                    description: 'Vibrant coral color that brightens any wardrobe.'
+                },
+            ];
+        }
+
+        
+        // Get products dynamically
+        let products = [];
+        let shopInitialized = false;
+        let categoriesData = [];
+        
+        // Initialize products after DOM is loaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Show loading state
+            showLoadingState();
+            
+            // Fetch products from API
+            products = await fetchProductsFromAPI();
+            
+            // Fetch categories from API
+            await fetchAndUpdateCategories();
+            
+            // Update homepage with API products
+            updateHomepageProducts();
+            
+            // Initialize filter functionality
+            initializeFilterDropdown();
+            
+            // Hide loading state
+            hideLoadingState();
+            
+            // Add Enter key support for promo code
+            document.getElementById('promo-code').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyPromoCode();
+                }
+            });
+        });
+        
+        // Product scrolling functionality
+        function scrollProducts(direction) {
+            const container = document.getElementById('products-grid');
+            const scrollAmount = 320; // Width of one product card + gap
+            
+            if (direction === 'left') {
+                container.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+            } else {
+                container.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+        }
+        
+        // Auto-scroll functionality (optional)
+        function startAutoScroll() {
+            const container = document.getElementById('products-grid');
+            if (!container) return;
+            
+            setInterval(() => {
+                const maxScroll = container.scrollWidth - container.clientWidth;
+                const currentScroll = container.scrollLeft;
+                
+                if (currentScroll >= maxScroll) {
+                    // Reset to beginning
+                    container.scrollTo({
+                        left: 0,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    // Scroll to next product
+                    scrollProducts('right');
+                }
+            }, 5000); // Auto-scroll every 5 seconds
+        }
+        
+        // Initialize auto-scroll when homepage is loaded
+        function initializeAutoScroll() {
+            // Uncomment the line below if you want auto-scrolling
+            // startAutoScroll();
+        }
+        
+        // Loading state functions
+        function showLoadingState() {
+            const productsGrid = document.querySelector('.products-grid');
+            if (productsGrid) {
+                productsGrid.innerHTML = `
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <p>Loading products...</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function hideLoadingState() {
+            // Loading will be replaced by actual products
+        }
+        
+        // Update homepage products with API data
+        function updateHomepageProducts() {
+            const productsGrid = document.querySelector('.products-grid');
+            if (!productsGrid || products.length === 0) return;
+            
+            // Show all products from API
+            const productsHTML = products.map(product => {
+                const isOutOfStock = product.quantity === 0;
+                const imageUrl = product.imageUrl || product.image_url || '/images/placeholder.jpg';
+                
+                return `
+                    <div class="product-card modern">
+                        <div class="card-glow"></div>
+                        <div class="product-image-wrapper">
+                            <div class="product-image" onclick="viewProductDetails('${product.name}')" 
+                                style="background-image: url('${imageUrl}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+                            </div>
+                            <div class="product-overlay">
+                                <button class="quick-view" onclick="viewProductDetails('${product.name}')">
+    
+                                </button>
+                            </div>
+                            <div class="product-badge ${isOutOfStock ? 'out-of-stock' : 'in-stock'}">
+                                ${isOutOfStock ? '❌ Out of Stock' : '✅ In Stock'}
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title" onclick="viewProductDetails('${product.name}')">${product.name}</h3>
+                            <p class="product-description">${product.description || 'High quality product'}</p>
+                            <div class="product-rating">
+                                <div class="stars"></div>
+                                <span class="rating-count">(24)</span>
+                            </div>
+                            <div class="product-footer">
+                                <div class="price-section">
+                                    <span class="price-current">USD $${product.price.toFixed(2)}</span>
+                                </div>
+                                ${isOutOfStock ? 
+                                    '<button class="add-to-cart modern" disabled style="background-color: #ccc; cursor: not-allowed;">Out of Stock</button>' : 
+                                    `<button class="add-to-cart modern" onclick="addToCartFromHome('${product.name}', ${product.price})">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="m1 1 4 4 14 2-14 5 14 2"></path>
+                                        </svg>
+                                        Add to Cart
+                                    </button>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            productsGrid.innerHTML = productsHTML;
+        }
+        
+        
+        // Initialize shop page
+        function initializeShopPage() {
+            // Reset filter options
+            const filterOptions = document.querySelectorAll('.filter-option');
+            filterOptions.forEach(opt => opt.classList.remove('active'));
+            
+            // Set "All Products" as active
+            const allProductsOption = document.querySelector('.filter-option[data-category="all"]');
+            if (allProductsOption) {
+                allProductsOption.classList.add('active');
+            }
+            
+            // Reset active filter display
+            const activeFilterLabel = document.querySelector('.active-filter-label');
+            if (activeFilterLabel) {
+                activeFilterLabel.innerHTML = 'Showing: <strong>All Products</strong>';
+            }
+            
+            // Refresh categories in case new ones were added
+            fetchAndUpdateCategories();
+            
+            displayProducts('all');
+        }
+        
+        // Fetch categories from API
+        async function fetchAndUpdateCategories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories/`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                categoriesData = data.categories || [];
+                updateCategoryDropdown();
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+                // Fallback to static categories
+                categoriesData = [
+                    { name: 't-shirts', count: 0 },
+                    { name: 'shirts', count: 0 }
+                ];
+                updateCategoryDropdown();
+            }
+        }
+        
+        // Update category dropdown with fetched data
+        function updateCategoryDropdown() {
+            const dynamicCategories = document.getElementById('dynamic-categories');
+            const allProductsCount = document.getElementById('count-all');
+            
+            // Update "All Products" count
+            const totalCount = categoriesData.reduce((sum, cat) => sum + cat.count, 0);
+            allProductsCount.textContent = totalCount;
+            
+            // Clear existing categories
+            dynamicCategories.innerHTML = '';
+            
+            // Add categories from API
+            categoriesData.forEach(category => {
+                const categoryButton = document.createElement('button');
+                categoryButton.className = 'filter-option';
+                categoryButton.setAttribute('data-category', category.name.toLowerCase());
+                categoryButton.innerHTML = `
+                    <span class="category-name">${category.name}</span>
+                    <span class="category-count">${category.count}</span>
+                `;
+                dynamicCategories.appendChild(categoryButton);
+            });
+        }
+        
+        // Initialize filter dropdown functionality
+        function initializeFilterDropdown() {
+            const filterToggle = document.getElementById('filter-toggle');
+            const filterDropdown = document.getElementById('filter-dropdown-content');
+            const activeFilters = document.getElementById('active-filters');
+            
+            // Toggle dropdown
+            filterToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                filterDropdown.classList.toggle('show');
+                filterToggle.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!filterToggle.contains(e.target) && !filterDropdown.contains(e.target)) {
+                    filterDropdown.classList.remove('show');
+                    filterToggle.classList.remove('active');
+                }
+            });
+            
+            // Handle filter option clicks
+            filterDropdown.addEventListener('click', function(e) {
+                if (e.target.closest('.filter-option')) {
+                    const option = e.target.closest('.filter-option');
+                    const category = option.getAttribute('data-category');
+                    const categoryName = option.querySelector('.category-name').textContent;
+                    
+                    // Update active filter
+                    document.querySelectorAll('.filter-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    option.classList.add('active');
+                    
+                    // Update active filter display
+                    const activeFilterLabel = activeFilters.querySelector('.active-filter-label');
+                    activeFilterLabel.innerHTML = `Showing: <strong>${categoryName}</strong>`;
+                    
+                    // Filter products
+                    displayProducts(category);
+                    
+                    // Close dropdown
+                    filterDropdown.classList.remove('show');
+                    filterToggle.classList.remove('active');
+                }
+            });
+        }
+        
+        // Display products based on category
+        function displayProducts(category) {
+            const shopProductsGrid = document.getElementById('shop-products');
+            const noProductsDiv = document.getElementById('no-products');
+            
+            // Show loading spinner
+            shopProductsGrid.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+            `;
+            
+            // Simulate loading delay for better UX
+            setTimeout(() => {
+                let filteredProducts = [];
+                
+                if (category === 'all') {
+                    filteredProducts = products;
+                } else {
+                    filteredProducts = products.filter(product => {
+                        return product.category === category || product.tags.includes(category);
+                    });
+                }
+                
+                if (filteredProducts.length === 0) {
+                    shopProductsGrid.innerHTML = '';
+                    noProductsDiv.style.display = 'block';
+                    noProductsDiv.innerHTML = `
+                        <p>No products found in this category.</p>
+                        <p>Try selecting a different category from the filters above.</p>
+                    `;
+                } else {
+                    noProductsDiv.style.display = 'none';
+                    
+                    const productsHTML = filteredProducts.map(product => {
+                        const isOutOfStock = product.quantity === 0;
+                        const imageUrl = product.imageUrl || product.image_url || '/images/placeholder.jpg';
+                        
+                        return `
+                            <div class="product-card">
+                                <div class="product-image" onclick="viewProductDetails('${product.name}')" 
+                                    style="background-image: url('${imageUrl}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+                                </div>
+                                <h3 onclick="viewProductDetails('${product.name}')">${product.name}</h3>
+                                <p class="price">USD $${product.price.toFixed(2)}</p>
+                                ${isOutOfStock ? 
+                                    '<button class="add-to-cart" disabled style="background-color: #ccc; cursor: not-allowed;">Out of Stock</button>' : 
+                                    `<button class="add-to-cart" onclick="addToCartFromShop('${product.name}', ${product.price})">Add to Cart</button>`
+                                }
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    shopProductsGrid.innerHTML = productsHTML;
+                }
+            }, 300);
+        }
+        
+        
+        // Navigation functionality
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const activeLink = document.querySelector(`[data-page="${pageId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            // Update cart display when cart page is shown
+            if (pageId === 'cart') {
+                updateCartDisplay();
+            }
+            
+            // Update shop display when shop page is shown
+            if (pageId === 'shop') {
+                if (products.length === 0) {
+                    products = getProductsFromDOM();
+                }
+                initializeShopPage();
+            }
+            
+            // Update checkout display when checkout page is shown
+            if (pageId === 'checkout') {
+                updateCheckoutDisplay();
+            }
+            
+            // Fetch and display orders when My Orders page is shown
+            if (pageId === 'my-orders') {
+                fetchAndDisplayOrders();
+            }
+        }
+
+        // Add click event listeners to navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('data-page');
+                showPage(pageId);
+            });
+        });
+
+        // Handle product click to view details
+        function viewProductDetails(productName) {
+            const product = products.find(p => p.name === productName);
+            if (product) {
+                currentProduct = product;
+                
+                // Set main image
+                document.getElementById('product-main-image').className = `main-product-image ${product.image}`;
+                
+                // Set product info
+                document.getElementById('product-title').textContent = product.name;
+                document.getElementById('product-price').textContent = `USD $${product.price.toFixed(2)}`;
+                
+                // Use API description or fallback
+                const productDescription = product.description || `Discover the exceptional quality of ${product.name}. Crafted with premium materials for ultimate comfort and style.`;
+                document.getElementById('product-description-text').textContent = productDescription;
+                
+                
+                // Update product image if API provides image URL
+                const imageUrl = product.imageUrl || product.image_url || '/images/placeholder.jpg';
+                const productImage = document.getElementById('product-main-image');
+                productImage.style.backgroundImage = `url('${imageUrl}')`;
+                productImage.style.backgroundSize = 'contain';
+                productImage.style.backgroundPosition = 'center';
+                productImage.style.backgroundRepeat = 'no-repeat';
+                                
+                // Show/hide size selector based on category
+                const sizeSelector = document.querySelector('.size-selector');
+                const isClothing = product.category === 't-shirts' || product.category === 'shirts' || 
+                                  product.name.toLowerCase().includes('tee') || 
+                                  product.name.toLowerCase().includes('shirt');
+                
+                if (isClothing) {
+                    sizeSelector.style.display = 'block';
+                } else {
+                    sizeSelector.style.display = 'none';
+                }
+                
+                // Initialize product details page
+                initializeProductDetails();
+                
+                showPage('product-details');
+            }
+        }
+
+        // Go back to shop from product page
+        function goBackToShop() {
+            showPage('shop');
+        }
+        
+        // Product details page variables
+        let currentProduct = null;
+        let selectedSize = 'M';
+        let productQuantity = 1;
+        
+        // Initialize product details page
+        function initializeProductDetails() {
+            // Size selector
+            const sizeButtons = document.querySelectorAll('.size-btn');
+            sizeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    sizeButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedSize = this.getAttribute('data-size');
+                });
+            });
+            
+            // Reset quantity
+            productQuantity = 1;
+            const quantityInput = document.getElementById('quantity');
+            if (quantityInput) {
+                quantityInput.value = productQuantity;
+            }
+        }
+        
+        // Change product quantity
+        function changeProductQuantity(change) {
+            productQuantity += change;
+            if (productQuantity < 1) productQuantity = 1;
+            if (productQuantity > 10) productQuantity = 10;
+            const quantityInput = document.getElementById('quantity');
+            if (quantityInput) {
+                quantityInput.value = productQuantity;
+            }
+        }
+        
+        // Add to cart functionality with product details
+        function addProductToCart() {
+            if (currentProduct) {
+                // Check if product is out of stock
+                if (currentProduct.quantity <= 0) {
+                    alert(`Sorry, "${currentProduct.name}" is currently out of stock.`);
+                    return;
+                }
+                
+                // Check current cart quantity for this product
+                const existingItem = cart.find(item => item.name === currentProduct.name);
+                const currentCartQuantity = existingItem ? existingItem.quantity : 0;
+                
+                // Check if requested quantity + current cart quantity exceeds available stock
+                if ((currentCartQuantity + productQuantity) > currentProduct.quantity) {
+                    const availableToAdd = currentProduct.quantity - currentCartQuantity;
+                    if (availableToAdd <= 0) {
+                        alert(`You already have the maximum available quantity (${currentProduct.quantity}) of "${currentProduct.name}" in your cart.`);
+                    } else {
+                        alert(`Cannot add ${productQuantity} items. You can only add ${availableToAdd} more of "${currentProduct.name}" (${currentCartQuantity} already in cart, ${currentProduct.quantity} total available).`);
+                    }
+                    return;
+                }
+                
+                // Add items to cart one by one (this handles the cart logic properly)
+                for (let i = 0; i < productQuantity; i++) {
+                    addToCart(currentProduct.name, currentProduct.price);
+                }
+                
+                // Show success message
+                const addBtn = document.querySelector('.btn-primary');
+                if (addBtn) {
+                    const originalText = addBtn.textContent;
+                    addBtn.textContent = `Added ${productQuantity} to Cart!`;
+                    addBtn.style.background = '#10b981';
+                    
+                    setTimeout(() => {
+                        addBtn.textContent = originalText;
+                        addBtn.style.background = '#28a745';
+                    }, 2000);
+                }
+            }
+        }
+        
+        // Buy now functionality
+        function buyNow() {
+            if (currentProduct) {
+                // Check if product is out of stock
+                if (currentProduct.quantity <= 0) {
+                    alert(`Sorry, "${currentProduct.name}" is currently out of stock.`);
+                    return;
+                }
+                
+                // Check if requested quantity is available
+                if (productQuantity > currentProduct.quantity) {
+                    alert(`Only ${currentProduct.quantity} items available for "${currentProduct.name}".`);
+                    return;
+                }
+                
+                // Clear cart first
+                cart = [];
+                
+                // Add current product to cart directly (since cart is empty, no need for complex validation)
+                cart.push({
+                    name: currentProduct.name,
+                    price: currentProduct.price,
+                    quantity: productQuantity
+                });
+                
+                // Update cart count and proceed to checkout
+                updateCartCount();
+                showPage('checkout');
+            }
+        }
+
+        // Handle checkout form submission
+        function placeOrder(event) {
+            event.preventDefault();
+            
+            // Check if cart is empty
+            if (cart.length === 0) {
+                alert('Your cart is empty. Please add items to your cart before placing an order.');
+                return;
+            }
+            
+            // Get all required form fields
+            const requiredFields = [
+                { id: 'firstName', name: 'First Name' },
+                { id: 'lastName', name: 'Last Name' },
+                { id: 'email', name: 'Email Address' },
+                { id: 'phoneNumber', name: 'Phone Number' },
+                { id: 'address', name: 'Address' },
+                { id: 'city', name: 'City' },
+                { id: 'country', name: 'Country/Region' },
+                { id: 'zipCode', name: 'ZIP/Postal Code' },
+                { id: 'cardNumber', name: 'Card Number' },
+                { id: 'expiryDate', name: 'Expiry Date' },
+                { id: 'cvv', name: 'CVV' }
+            ];
+            
+            // Check if all required fields are filled
+            const emptyFields = [];
+            for (const field of requiredFields) {
+                const element = document.getElementById(field.id);
+                if (!element || !element.value.trim()) {
+                    emptyFields.push(field.name);
+                }
+            }
+            
+            // If there are empty fields, show error message
+            if (emptyFields.length > 0) {
+                alert(`Please fill in the following required fields:\n\n${emptyFields.join('\n')}`);
+                return;
+            }
+            
+            // Validate email format
+            const emailField = document.getElementById('email');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailField.value)) {
+                alert('Please enter a valid email address.');
+                emailField.focus();
+                return;
+            }
+            
+            // Validate phone number (basic validation)
+            const phoneField = document.getElementById('phoneNumber');
+            const phoneRegex = /^[+]?[\d\s\-\(\)]{10,}$/;
+            if (!phoneRegex.test(phoneField.value)) {
+                alert('Please enter a valid phone number (at least 10 digits).');
+                phoneField.focus();
+                return;
+            }
+            
+            // Validate credit card number (basic validation - just check if it's numbers and has 13-19 digits)
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            if (!/^\d{13,19}$/.test(cardNumber)) {
+                alert('Please enter a valid credit card number (13-19 digits).');
+                document.getElementById('cardNumber').focus();
+                return;
+            }
+            
+            // Validate expiry date (MM/YY format)
+            const expiryDate = document.getElementById('expiryDate').value;
+            const expiryRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+            if (!expiryRegex.test(expiryDate)) {
+                alert('Please enter a valid expiry date in MM/YY format.');
+                document.getElementById('expiryDate').focus();
+                return;
+            }
+            
+            // Validate CVV (3-4 digits)
+            const cvv = document.getElementById('cvv').value;
+            if (!/^\d{3,4}$/.test(cvv)) {
+                alert('Please enter a valid CVV (3-4 digits).');
+                document.getElementById('cvv').focus();
+                return;
+            }
+            
+            // If all validations pass, proceed with order
+            submitOrderToAPI();
+        }
+
+        // Add to cart from homepage
+        function addToCartFromHome(productName, price) {
+            addToCart(productName, price);
+            
+            // Find the button and show feedback
+            const buttons = document.querySelectorAll('.add-to-cart');
+            buttons.forEach(button => {
+                const card = button.closest('.product-card');
+                const cardTitle = card.querySelector('h3').textContent;
+                
+                if (cardTitle === productName) {
+                    const originalText = button.textContent;
+                    button.textContent = 'Added!';
+                    button.style.background = '#10b981';
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '';
+                    }, 2000);
+                }
+            });
+        }
+
+        // Add to cart from shop page with animation
+        function addToCartFromShop(productName, price) {
+            addToCart(productName, price);
+            
+            // Find the button that was clicked
+            const buttons = document.querySelectorAll('.add-to-cart');
+            buttons.forEach(button => {
+                if (button.textContent.trim() === 'Add to Cart') {
+                    const productCard = button.closest('.product-card');
+                    const cardProductName = productCard.querySelector('h3').textContent;
+                    
+                    if (cardProductName === productName) {
+                        button.textContent = 'Added!';
+                        button.style.background = '#10b981';
+                        button.style.transform = 'scale(0.95)';
+                        
+                        setTimeout(() => {
+                            button.textContent = 'Add to Cart';
+                            button.style.background = '';
+                            button.style.transform = '';
+                        }, 2000);
+                    }
+                }
+            });
+        }
+
+        // Add to cart functionality
+        function addToCart(productName, price) {
+            const product = products.find(p => p.name === productName);
+            
+            // Check if product exists and is out of stock
+            if (product && product.quantity <= 0) {
+                alert(`Sorry, "${productName}" is currently out of stock.`);
+                return;
+            }
+            
+            const existingItem = cart.find(item => item.name === productName);
+            
+            if (existingItem) {
+                // Check if we can add one more item (current cart quantity + 1 should not exceed stock)
+                if (product && (existingItem.quantity + 1) > product.quantity) {
+                    alert(`Cannot add more ${productName}. Only ${product.quantity} items available in stock. You currently have ${existingItem.quantity} in your cart.`);
+                    return;
+                }
+                existingItem.quantity += 1;
+            } else {
+                // Check if we can add at least 1 item
+                if (product && product.quantity < 1) {
+                    alert(`Sorry, "${productName}" is currently out of stock.`);
+                    return;
+                }
+                cart.push({
+                    name: productName,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            
+            updateCartCount();
+        }
+        
+        // Update cart count in navbar
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').textContent = totalItems;
+        }
+        
+        // Update cart display
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cart-items');
+            const cartEmpty = document.getElementById('cart-empty');
+            const cartSummary = document.getElementById('cart-summary');
+            
+            if (cart.length === 0) {
+                cartItems.style.display = 'none';
+                cartEmpty.style.display = 'block';
+                cartSummary.style.display = 'none';
+            } else {
+                cartItems.style.display = 'block';
+                cartEmpty.style.display = 'none';
+                cartSummary.style.display = 'block';
+                
+                // Clear existing items
+                cartItems.innerHTML = '';
+                
+                // Add cart items
+                cart.forEach((item, index) => {
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <div class="item-info">
+                            <h4>${item.name}</h4>
+                            <p class="item-price">USD.$${item.price}</p>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity(${index}, -1)">-</button>
+                            <span class="quantity">${item.quantity}</span>
+                            <button class="quantity-btn" onclick="changeQuantity(${index}, 1)">+</button>
+                        </div>
+                        <div class="item-total">
+                            USD $${(item.price * item.quantity).toFixed(2)}
+                        </div>
+                        <button class="remove-btn" onclick="removeItem(${index})">×</button>
+                    `;
+                    cartItems.appendChild(cartItem);
+                });
+                
+                // Update totals
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                
+                document.getElementById('total-items').textContent = totalItems;
+                document.getElementById('total-price').textContent = `USD $${totalPrice.toFixed(2)}`;
+            }
+        }
+        
+        // Change quantity of item
+        function changeQuantity(index, change) {
+            const item = cart[index];
+            const product = products.find(p => p.name === item.name);
+            
+            if (change > 0) {
+                // Check stock before increasing quantity
+                if (product && (item.quantity + change) > product.quantity) {
+                    alert(`Cannot add more ${item.name}. Only ${product.quantity} items available in stock.`);
+                    return;
+                }
+            }
+            
+            cart[index].quantity += change;
+            
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+            
+            updateCartCount();
+            updateCartDisplay();
+        }
+        
+        // Remove item from cart
+        function removeItem(index) {
+            cart.splice(index, 1);
+            updateCartCount();
+            updateCartDisplay();
+        }
+        
+        // Clear entire cart
+        function clearCart() {
+            cart = [];
+            updateCartCount();
+            updateCartDisplay();
+        }
+        
+        // Promo code variables
+        let appliedPromoCode = null;
+        let promoDiscount = 0;
+        
+        // Available promo codes
+        const promoCodes = {
+            'SAVE10': { type: 'percentage', value: 10, description: '10% off' },
+            'SAVE20': { type: 'percentage', value: 20, description: '20% off' },
+            'FLAT50': { type: 'fixed', value: 50, description: 'Rs. 50 off' },
+            'FLAT100': { type: 'fixed', value: 100, description: 'Rs. 100 off' },
+            'WELCOME': { type: 'percentage', value: 15, description: '15% off for new customers' },
+            'TRENDY25': { type: 'percentage', value: 25, description: '25% off limited time' }
+        };
+        
+        // Apply promo code
+        function applyPromoCode() {
+            const promoInput = document.getElementById('promo-code');
+            const promoMessage = document.getElementById('promo-message');
+            const promoCodeEntered = promoInput.value.trim().toUpperCase();
+            
+            if (!promoCodeEntered) {
+                showPromoMessage('Please enter a promo code', 'error');
+                return;
+            }
+            
+            if (promoCodes[promoCodeEntered]) {
+                const promo = promoCodes[promoCodeEntered];
+                appliedPromoCode = promoCodeEntered;
+                
+                // Calculate discount
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                if (promo.type === 'percentage') {
+                    promoDiscount = (subtotal * promo.value) / 100;
+                } else {
+                    promoDiscount = Math.min(promo.value, subtotal); // Don't exceed subtotal
+                }
+                
+                showPromoMessage(`Promo code applied! ${promo.description}`, 'success');
+                updateCheckoutPricing();
+                
+                // Disable input and button
+                promoInput.disabled = true;
+                document.querySelector('.promo-btn').textContent = 'Applied';
+                document.querySelector('.promo-btn').disabled = true;
+                
+            } else {
+                showPromoMessage('Invalid promo code', 'error');
+            }
+        }
+        
+        // Show promo message
+        function showPromoMessage(message, type) {
+            const promoMessage = document.getElementById('promo-message');
+            promoMessage.textContent = message;
+            promoMessage.className = `promo-message ${type}`;
+            promoMessage.style.display = 'block';
+        }
+        
+        // Reset promo code
+        function resetPromoCode() {
+            appliedPromoCode = null;
+            promoDiscount = 0;
+            
+            const promoInput = document.getElementById('promo-code');
+            const promoMessage = document.getElementById('promo-message');
+            const promoBtn = document.querySelector('.promo-btn');
+            
+            promoInput.value = '';
+            promoInput.disabled = false;
+            promoBtn.textContent = 'Apply';
+            promoBtn.disabled = false;
+            promoMessage.style.display = 'none';
+            
+            document.getElementById('discount-row').style.display = 'none';
+        }
+        
+        // Update checkout pricing
+        function updateCheckoutPricing() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const total = subtotal - promoDiscount;
+            
+            document.getElementById('checkout-subtotal').textContent = `USD$. ${subtotal.toFixed(2)}`;
+            document.getElementById('checkout-total').textContent = `USD$. ${total.toFixed(2)}`;
+            
+            if (appliedPromoCode && promoDiscount > 0) {
+                document.getElementById('discount-row').style.display = 'flex';
+                document.getElementById('discount-code').textContent = appliedPromoCode;
+                document.getElementById('discount-amount').textContent = `-USD$. ${promoDiscount.toFixed(2)}`;
+            } else {
+                document.getElementById('discount-row').style.display = 'none';
+            }
+        }
+        
+        // Update checkout display
+        function updateCheckoutDisplay() {
+            const checkoutItems = document.getElementById('checkout-items');
+            const checkoutEmpty = document.getElementById('checkout-empty');
+            const checkoutSummary = document.getElementById('checkout-summary');
+            
+            if (cart.length === 0) {
+                checkoutItems.style.display = 'none';
+                checkoutEmpty.style.display = 'block';
+                checkoutSummary.style.display = 'none';
+                resetPromoCode();
+            } else {
+                checkoutItems.style.display = 'block';
+                checkoutEmpty.style.display = 'none';
+                checkoutSummary.style.display = 'block';
+                
+                // Clear existing items
+                checkoutItems.innerHTML = '';
+                
+                // Add checkout items
+                cart.forEach(item => {
+                    const checkoutItem = document.createElement('div');
+                    checkoutItem.className = 'summary-item';
+                    checkoutItem.innerHTML = `
+                        <div class="item-details">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-quantity">x${item.quantity}</span>
+                        </div>
+                        <span class="item-price">USD. $${(item.price * item.quantity).toFixed(2)}</span>
+                    `;
+                    checkoutItems.appendChild(checkoutItem);
+                });
+                
+                // Update pricing
+                updateCheckoutPricing();
+            }
+        }
+
+        // Search functionality
+        function toggleSearch() {
+            const searchModal = document.getElementById('search-modal');
+            const searchInput = document.getElementById('search-input');
+            
+            if (searchModal.style.display === 'flex') {
+                searchModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            } else {
+                searchModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => searchInput.focus(), 100);
+                showSearchSuggestions();
+            }
+        }
+        
+        function showSearchSuggestions() {
+            const searchResults = document.getElementById('search-results');
+            searchResults.innerHTML = `
+                <div class="search-suggestions">
+                    <p>Try searching for: "Striped", "Mountain", "Green", "Coral"</p>
+                </div>
+            `;
+        }
+        
+        async function searchProducts(query) {
+            if (!query.trim()) {
+                showSearchSuggestions();
+                return;
+            }
+            
+            try {
+                // Try to search using API first
+                const response = await fetch(`${API_BASE_URL}/search/?q=${encodeURIComponent(query)}`);
+                if (response.ok) {
+                    const apiResults = await response.json();
+                    // Transform API results to match frontend format
+                    const transformedResults = apiResults.map(product => ({
+                        id: product.id,
+                        name: product.title,
+                        price: product.price,
+                        category: product.category,
+                        image: getProductImageClass(product.title),
+                        imageUrl: `${API_BASE_URL}${product.image_url}`,
+                        description: product.description
+                    }));
+                    displaySearchResults(transformedResults, query);
+                } else {
+                    // Fallback to local search
+                    const filteredProducts = products.filter(product => 
+                        product.name.toLowerCase().includes(query.toLowerCase()) ||
+                        product.category.toLowerCase().includes(query.toLowerCase())
+                    );
+                    displaySearchResults(filteredProducts, query);
+                }
+            } catch (error) {
+                console.error('Search API error:', error);
+                // Fallback to local search
+                const filteredProducts = products.filter(product => 
+                    product.name.toLowerCase().includes(query.toLowerCase()) ||
+                    product.category.toLowerCase().includes(query.toLowerCase())
+                );
+                displaySearchResults(filteredProducts, query);
+            }
+        }
+        
+        function displaySearchResults(results, query) {
+            const searchResults = document.getElementById('search-results');
+            
+            if (results.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        <p>No products found for "${query}"</p>
+                        <p>Try searching for: "Striped", "Mountain", "Green", "Coral"</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const resultsHTML = results.map(product => `
+                <div class="search-result-item" onclick="selectProduct('${product.name}', ${product.price})">
+                    <div class="result-image" style="background-image: url('${product.imageUrl || ''}'); width: 50px; height: 50px; background-size: cover; background-position: center; border-radius: 4px; margin-right: 1rem;"></div>
+                    <div class="result-info">
+                        <h4>${product.name}</h4>
+                        <p class="result-price">USD. $${product.price.toFixed(2)}</p>
+                    </div>
+                    <button class="result-add-btn">Add to Cart</button>
+                </div>
+            `).join('');
+            
+            searchResults.innerHTML = `
+                <div class="search-results-header">
+                    <p>Found ${results.length} product${results.length > 1 ? 's' : ''} for "${query}"</p>
+                </div>
+                <div class="search-results-list">
+                    ${resultsHTML}
+                </div>
+            `;
+        }
+        
+        function selectProduct(productName, price) {
+            addToCart(productName, price);
+            
+            // Show success message
+            const searchResults = document.getElementById('search-results');
+            const successMessage = document.createElement('div');
+            successMessage.className = 'search-success';
+            successMessage.innerHTML = `
+                <p>✓ ${productName} added to cart!</p>
+            `;
+            searchResults.appendChild(successMessage);
+            
+            setTimeout(() => {
+                successMessage.remove();
+            }, 2000);
+        }
+        
+        // Search input event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            
+            searchInput.addEventListener('input', function(e) {
+                searchProducts(e.target.value);
+            });
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const results = document.querySelectorAll('.search-result-item');
+                    if (results.length > 0) {
+                        results[0].click();
+                    }
+                }
+            });
+        });
+        
+        // Close search modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const searchModal = document.getElementById('search-modal');
+            const searchBtn = document.querySelector('.search-btn');
+            
+            if (e.target === searchModal && !searchBtn.contains(e.target)) {
+                toggleSearch();
+            }
+        });
+        
+        // Close search modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const searchModal = document.getElementById('search-modal');
+                if (searchModal.style.display === 'flex') {
+                    toggleSearch();
+                }
+            }
+        });
+
+        // Add to cart functionality with product details
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const productCard = e.target.closest('.product-card');
+                const productName = productCard.querySelector('h3').textContent;
+                const productPrice = parseFloat(productCard.querySelector('.price').textContent.replace('Rs. ', ''));
+                
+                addToCart(productName, productPrice);
+                
+                button.textContent = 'Added!';
+                button.style.background = '#10b981';
+                setTimeout(() => {
+                    button.textContent = 'Add to Cart';
+                    button.style.background = '';
+                }, 2000);
+            });
+        });
+        
+        // Mobile menu toggle functionality
+        function toggleMobileMenu() {
+            const navMenu = document.querySelector('.nav-menu');
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            
+            navMenu.classList.toggle('mobile-active');
+            mobileMenuBtn.classList.toggle('active');
+        }
+        
+        // Review form functionality
+        document.getElementById('review-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            const reviewData = {
+                name: formData.get('reviewer-name'),
+                email: formData.get('reviewer-email'),
+                rating: formData.get('rating'),
+                title: formData.get('review-title'),
+                text: formData.get('review-text')
+            };
+            
+            // Here you would normally send to your backend
+            console.log('Review submitted:', reviewData);
+            
+            // Show success message
+            alert('Thank you for your review! We appreciate your feedback.');
+            
+            // Reset form
+            this.reset();
+        });
+
+        // Submit order to API function
+        async function submitOrderToAPI() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('You must be logged in to place an order.');
+                showPage('login');
+                return;
+            }
+            
+            try {
+                // Show loading state
+                const submitButton = document.querySelector('button[onclick="placeOrder(event)"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Processing...';
+                submitButton.disabled = true;
+                
+                // Transform cart items to match API format
+                const orderItems = [];
+                let hasInvalidProducts = false;
+                
+                for (const item of cart) {
+                    const product = products.find(p => p.name === item.name);
+                    if (!product) {
+                        console.error(`Product not found: ${item.name}`);
+                        alert(`Error: Product "${item.name}" not found. Please refresh the page and try again.`);
+                        hasInvalidProducts = true;
+                        break;
+                    }
+                    orderItems.push({
+                        product_id: product.id,
+                        quantity: item.quantity,
+                        price: item.price
+                    });
+                }
+                
+                if (hasInvalidProducts) {
+                    // Reset button state
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                    return;
+                }
+                
+                // Calculate total amount
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const totalAmount = subtotal - promoDiscount;
+                
+                // Get form data for shipping and payment
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('email').value;
+                const phoneNumber = document.getElementById('phoneNumber').value;
+                const address = document.getElementById('address').value;
+                const city = document.getElementById('city').value;
+                const country = document.getElementById('country').value;
+                const zipCode = document.getElementById('zipCode').value;
+                const deliveryInstructions = document.getElementById('deliveryInstructions').value;
+                const cardNumber = document.getElementById('cardNumber').value;
+                const expiryDate = document.getElementById('expiryDate').value;
+                const cvv = document.getElementById('cvv').value;
+                
+                // Prepare order data with shipping and payment details
+                const orderData = {
+                    customer_id: 1, // This will be overridden by the backend
+                    shipping_address_id: 1, // This will be overridden by the backend
+                    items: orderItems,
+                    total_amount: totalAmount,
+                    status: 'pending',
+                    // Customer details from checkout form
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: email,
+                    phone_number: phoneNumber,
+                    // Shipping address fields
+                    shipping_address_line1: address,
+                    shipping_address_line2: deliveryInstructions,
+                    city: city,
+                    country: country,
+                    zip_code: zipCode,
+                    // Payment fields (for logging purposes - not storing sensitive data)
+                    payment_provider: 'credit_card',
+                    card_number: cardNumber ? '****' + cardNumber.slice(-4) : null, // Only last 4 digits for logging
+                    expiry_date: expiryDate,
+                    cvv: null // Never store CVV
+                };
+                
+                console.log('Submitting order:', orderData);
+                
+                // Send order to API
+                const response = await fetch(`${API_BASE_URL}/place-order/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('username');
+                    updateNavUI(null);
+                    alert('Your session has expired. Please log in again.');
+                    showPage('login');
+                    return;
+                }
+                
+                if (response.ok) {
+                    const orderResult = await response.json();
+                    console.log('Order placed successfully:', orderResult);
+                    
+                    // Clear cart after successful order
+                    cart = [];
+                    updateCartCount();
+                    
+                    // Reset promo code
+                    resetPromoCode();
+                    
+                    // Show success page
+                    showPage('order-placed');
+                    
+                    // Update the order placed page with actual order details
+                    updateOrderPlacedPage(orderResult);
+                    
+                } else {
+                    const errorData = await response.json();
+                    console.error('Order placement failed:', errorData);
+                    alert(`Order placement failed: ${errorData.detail || 'Unknown error'}`);
+                }
+                
+            } catch (error) {
+                console.error('Error submitting order:', error);
+                alert('Failed to place order. Please check your connection and try again.');
+            } finally {
+                // Reset button state
+                const submitButton = document.querySelector('button[onclick="placeOrder(event)"]');
+                if (submitButton) {
+                    submitButton.textContent = 'Place Order';
+                    submitButton.disabled = false;
+                }
+            }
+        }
+        
+        // Update order placed page with actual order details
+        function updateOrderPlacedPage(orderResult) {
+            const orderNumber = document.querySelector('.value');
+            const totalAmount = document.querySelector('.info-row:last-child .value');
+            
+            if (orderNumber) {
+                orderNumber.textContent = `#TRD-${orderResult.id}`;
+            }
+            
+            if (totalAmount) {
+                totalAmount.textContent = `USD. $${orderResult.total_amount.toFixed(2)}`;
+            }
+        }
+
+        // Authentication logic
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginLink = document.getElementById('login-link');
+        const profileMenu = document.getElementById('profile-menu');
+        const usernameDisplay = document.getElementById('username-display');
+        const signoutButton = document.getElementById('signout-button');
+        const showRegister = document.getElementById('show-register');
+        const showLogin = document.getElementById('show-login');
+        const loginFormContainer = document.getElementById('login-form-container');
+        const registerFormContainer = document.getElementById('register-form-container');
+
+        if(showRegister) {
+            showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginFormContainer.style.display = 'none';
+                registerFormContainer.style.display = 'block';
+            });
+        }
+
+        if(showLogin) {
+            showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginFormContainer.style.display = 'block';
+                registerFormContainer.style.display = 'none';
+            });
+        }
+
+        if(registerForm) {
+            console.log('Registration form found, attaching event listener');
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                console.log('Registration form submitted');
+                
+                const username = document.getElementById('register-username').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                
+                console.log('Registration data:', { username, email, password: '***' });
+                
+                // Basic validation
+                if (!username || !email || !password) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    alert('Password must be at least 6 characters long');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password, username })
+                    });
+
+                    if (response.ok) {
+                        alert('Registration successful! You can now log in.');
+                        showLoginPage();
+                    } else {
+                        const error = await response.json();
+                        alert(`Registration failed: ${error.detail || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    alert('Registration failed: Network error. Please check if the server is running.');
+                }
+            });
+        } else {
+            console.log('Registration form not found');
+        }
+
+        if(loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('username', data.username);
+                    updateNavUI(data.username);
+                    showPage('home');
+                } else {
+                    alert('Login failed. Please check your credentials.');
+                }
+            });
+        }
+
+        if(signoutButton) {
+            signoutButton.addEventListener('click', () => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                updateNavUI(null);
+                showPage('home');
+            });
+        }
+
+        function updateNavUI(username) {
+            if (username) {
+                loginLink.style.display = 'none';
+                profileMenu.style.display = 'block';
+                usernameDisplay.textContent = username;
+            } else {
+                loginLink.style.display = 'block';
+                profileMenu.style.display = 'none';
+                usernameDisplay.textContent = '';
+            }
+        }
+        
+        function showLoginPage() {
+            loginFormContainer.style.display = 'block';
+            registerFormContainer.style.display = 'none';
+            showPage('login');
+        }
+
+        // Fetch and display user orders
+        async function fetchAndDisplayOrders() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showPage('login');
+                alert('You must be logged in to view your orders.');
+                return;
+            }
+
+            const ordersList = document.getElementById('orders-list');
+            const noOrders = document.getElementById('no-orders');
+            
+            // Show loading state
+            ordersList.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p>Loading orders...</p></div>';
+            noOrders.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/my-orders`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('username');
+                    updateNavUI(null);
+                    showPage('login');
+                    alert('Your session has expired. Please log in again.');
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const response_data = await response.json();
+                console.log('Orders API response:', response_data);
+                
+                // Handle different response formats
+                const orders = response_data.orders || response_data || [];
+
+                if (!orders || orders.length === 0) {
+                    ordersList.innerHTML = '';
+                    noOrders.style.display = 'block';
+                } else {
+                    ordersList.innerHTML = orders.map(order => `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div>
+                                    <h3>Order #${order.id}</h3>
+                                    <p class="order-date">Date: ${new Date(order.order_date).toLocaleDateString()}</p>
+                                    <p class="order-status">Status: ${order.status}</p>
+                                </div>
+                                <div class="order-total">
+                                    <p>Total: USD $${order.total_amount.toFixed(2)}</p>
+                                </div>
+                            </div>
+                            <div class="order-items">
+                                ${order.items && order.items.length > 0 ? order.items.map(item => `
+                                    <div class="order-item">
+                                        <div class="item-details">
+                                            <span class="item-name">${item.title || item.product_name || 'Product'}</span>
+                                            <span class="item-qty">Qty: ${item.quantity}</span>
+                                        </div>
+                                        <span class="item-price">USD $${(item.price * item.quantity).toFixed(2)}</span>
+                                    </div>
+                                `).join('') : '<p>No items found</p>'}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                ordersList.innerHTML = '<div class="error-message"><p>Could not load orders. Please try again later.</p></div>';
+            }
+        }
+
+        // Check for token on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const username = localStorage.getItem('username');
+            if (token && username) {
+                updateNavUI(username);
+            } else {
+                updateNavUI(null);
+            }
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Navigation</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="showPage('home')">Home</a></li>
+                        <li><a href="#" onclick="showPage('shop')">Shop All Products</a></li>
+                        <li><a href="#" onclick="showPage('return-policy')">Return Policy</a></li>
+                        <li><a href="#" onclick="showPage('reviews')">Reviews</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <div class="contact-info">
+                        <p><strong>Trendyoft Inc.</strong></p>
+                        <p>Email: <a href="mailto:support@trendyoft.com">support@trendyoft.com</a></p>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-links">
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                            <span class="social-icon">📷</span> Instagram
+                        </a>
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                            <span class="social-icon">📘</span> Facebook
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="brand-message">
+                    <p><em>"We curate the internet's most viral, useful, and just plain fun products — delivered to your door."</em></p>
+                </div>
+                <div class="footer-legal">
+                    <p>&copy; 2024 Trendyoft Inc. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
