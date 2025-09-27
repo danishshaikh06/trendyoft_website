@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trendyoft API Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .loading { background-color: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Trendyoft API Connection Test</h1>
+    
+    <div id="test-results">
+        <div class="test-result loading">Testing connection to backend...</div>
+    </div>
+    
+    <script>
+        const API_BASE_URL = 'https://trendyoft-website.onrender.com';
+        const resultsDiv = document.getElementById('test-results');
+        
+        async function testAPI() {
+            resultsDiv.innerHTML = '<div class="test-result loading">🔄 Testing API connections...</div>';
+            
+            const tests = [
+                { name: 'Products API', url: `${API_BASE_URL}/products` },
+                { name: 'Categories API', url: `${API_BASE_URL}/categories` },
+                { name: 'Root Endpoint', url: `${API_BASE_URL}/` }
+            ];
+            
+            let results = [];
+            
+            for (const test of tests) {
+                try {
+                    const response = await fetch(test.url);
+                    if (response.ok) {
+                        const data = await response.json();
+                        let itemCount = '';
+                        if (Array.isArray(data)) {
+                            itemCount = ` (${data.length} items)`;
+                        } else if (data.categories) {
+                            itemCount = ` (${data.categories.length} categories)`;
+                        }
+                        results.push(`<div class="test-result success">✅ ${test.name} - Working${itemCount}</div>`);
+                    } else {
+                        results.push(`<div class="test-result error">❌ ${test.name} - HTTP ${response.status}</div>`);
+                    }
+                } catch (error) {
+                    results.push(`<div class="test-result error">❌ ${test.name} - ${error.message}</div>`);
+                }
+            }
+            
+            results.push(`<div class="test-result success">🎉 Test completed! Your backend is accessible from this frontend.</div>`);
+            resultsDiv.innerHTML = results.join('');
+        }
+        
+        // Run test when page loads
+        testAPI();
+    </script>
+</body>
+</html>

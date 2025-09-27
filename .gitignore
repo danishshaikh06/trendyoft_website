@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Environment variables (keep .env.example)
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Static generated files
+static_products.js
+
+# MySQL installer
+*.msi
+
+# Temporary files
+temp_*
+
+# Images (you can uncomment these lines if you don't want to include uploaded images)
+# images/*.jpg
+# images/*.png
+# images/*.jpeg

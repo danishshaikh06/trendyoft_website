@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trendyoft"
+version = "1.0.0"
+description = "Trendyoft E-commerce Backend API"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi==0.104.1",
+    "uvicorn[standard]==0.24.0",
+    "PyMySQL==1.1.0",
+    "python-dotenv==1.0.0",
+    "Pillow==10.1.0",
+    "requests==2.31.0",
+    "python-multipart==0.0.6",
+    "pydantic==2.5.0",
+]
