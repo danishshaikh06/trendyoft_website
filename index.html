@@ -2334,37 +2334,23 @@ async function increaseQuantity() {
             }
             
             try {
-                // Try to search using API first
-                const response = await fetch(`${API_BASE_URL}/search/?q=${encodeURIComponent(query)}`);
-                if (response.ok) {
-                    const apiResults = await response.json();
-                    // Transform API results to match frontend format
-                    const transformedResults = apiResults.map(product => ({
-                        id: product.id,
-                        name: product.title,
-                        price: product.price,
-                        category: product.category,
-                        image: getProductImageClass(product.title),
-                        imageUrl: `${API_BASE_URL}${product.image_url}`,
-                        description: product.description
-                    }));
-                    displaySearchResults(transformedResults, query);
-                } else {
-                    // Fallback to local search
-                    const filteredProducts = products.filter(product => 
-                        product.name.toLowerCase().includes(query.toLowerCase()) ||
-                        product.category.toLowerCase().includes(query.toLowerCase())
-                    );
-                    displaySearchResults(filteredProducts, query);
-                }
-            } catch (error) {
-                console.error('Search API error:', error);
-                // Fallback to local search
-                const filteredProducts = products.filter(product => 
-                    product.name.toLowerCase().includes(query.toLowerCase()) ||
-                    product.category.toLowerCase().includes(query.toLowerCase())
-                );
+                // Search in loaded products array (which comes from database)
+                const filteredProducts = products.filter(product => {
+                    const searchTerm = query.toLowerCase();
+                    const productName = (product.name || product.title || '').toLowerCase();
+                    const productDescription = (product.description || '').toLowerCase();
+                    const productCategory = (product.category || '').toLowerCase();
+                    
+                    return productName.includes(searchTerm) || 
+                        productDescription.includes(searchTerm) || 
+                        productCategory.includes(searchTerm);
+                });
+                
                 displaySearchResults(filteredProducts, query);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                displaySearchResults([], query);
             }
         }
         
@@ -2375,22 +2361,28 @@ async function increaseQuantity() {
                 searchResults.innerHTML = `
                     <div class="no-results">
                         <p>No products found for "${query}"</p>
-                        <p>Try searching for: "Striped", "Mountain", "Green", "Coral"</p>
+                        <p>Try searching for: "LED", "Phone", "Charger", "Console"</p>
                     </div>
                 `;
                 return;
             }
             
-            const resultsHTML = results.map(product => `
-                <div class="search-result-item" onclick="selectProduct('${product.name}', ${product.price})">
-                    <div class="result-image" style="background-image: url('${product.imageUrl || ''}'); width: 50px; height: 50px; background-size: cover; background-position: center; border-radius: 4px; margin-right: 1rem;"></div>
-                    <div class="result-info">
-                        <h4>${product.name}</h4>
-                        <p class="result-price">USD. $${product.price.toFixed(2)}</p>
+            const resultsHTML = results.map(product => {
+                const imageUrl = product.imageUrl || product.image_url || '/images/placeholder.jpg';
+                const productName = product.name || product.title || 'Unknown Product';
+                const productPrice = product.price || 0;
+                
+                return `
+                    <div class="search-result-item" onclick="selectProduct('${productName}', ${productPrice})">
+                        <div class="result-image" style="background-image: url('${imageUrl}'); width: 50px; height: 50px; background-size: cover; background-position: center; border-radius: 4px; margin-right: 1rem;"></div>
+                        <div class="result-info">
+                            <h4>${productName}</h4>
+                            <p class="result-price">USD $${productPrice.toFixed(2)}</p>
+                        </div>
+                        <button class="result-add-btn">Add to Cart</button>
                     </div>
-                    <button class="result-add-btn">Add to Cart</button>
-                </div>
-            `).join('');
+                `;
+            }).join('');
             
             searchResults.innerHTML = `
                 <div class="search-results-header">
