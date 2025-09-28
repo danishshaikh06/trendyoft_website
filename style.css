@@ -974,7 +974,7 @@ body {
 .form-container {
     max-width: 400px;
     margin: 2rem auto;
-    background: rgb(3, 28, 102);
+    background: rgb(255, 255, 255);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
