@@ -1547,9 +1547,10 @@ async function increaseQuantity() {
                 activeFilterLabel.innerHTML = 'Showing: <strong>All Products</strong>';
             }
             
-            // Refresh categories in case new ones were added
+            // Ensure categories are loaded
             fetchAndUpdateCategories();
             
+            // Display all products
             displayProducts('all');
         }
         
@@ -1579,21 +1580,35 @@ async function increaseQuantity() {
             const dynamicCategories = document.getElementById('dynamic-categories');
             const allProductsCount = document.getElementById('count-all');
             
+            if (!dynamicCategories) return;
+            
             // Update "All Products" count
-            const totalCount = categoriesData.reduce((sum, cat) => sum + cat.count, 0);
-            allProductsCount.textContent = totalCount;
+            const totalCount = products.length;
+            if (allProductsCount) {
+                allProductsCount.textContent = totalCount;
+            }
+            
+            // Get unique categories from products
+            const categoryMap = {};
+            products.forEach(product => {
+                const category = product.category || 'uncategorized';
+                if (!categoryMap[category]) {
+                    categoryMap[category] = 0;
+                }
+                categoryMap[category]++;
+            });
             
             // Clear existing categories
             dynamicCategories.innerHTML = '';
             
-            // Add categories from API
-            categoriesData.forEach(category => {
+            // Add categories from products
+            Object.entries(categoryMap).forEach(([categoryName, count]) => {
                 const categoryButton = document.createElement('button');
                 categoryButton.className = 'filter-option';
-                categoryButton.setAttribute('data-category', category.name.toLowerCase());
+                categoryButton.setAttribute('data-category', categoryName.toLowerCase());
                 categoryButton.innerHTML = `
-                    <span class="category-name">${category.name}</span>
-                    <span class="category-count">${category.count}</span>
+                    <span class="category-name">${categoryName}</span>
+                    <span class="category-count">${count}</span>
                 `;
                 dynamicCategories.appendChild(categoryButton);
             });
@@ -1603,7 +1618,8 @@ async function increaseQuantity() {
         function initializeFilterDropdown() {
             const filterToggle = document.getElementById('filter-toggle');
             const filterDropdown = document.getElementById('filter-dropdown-content');
-            const activeFilters = document.getElementById('active-filters');
+            
+            if (!filterToggle || !filterDropdown) return;
             
             // Toggle dropdown
             filterToggle.addEventListener('click', function(e) {
@@ -1620,10 +1636,10 @@ async function increaseQuantity() {
                 }
             });
             
-            // Handle filter option clicks
+            // Handle filter option clicks - FIXED VERSION
             filterDropdown.addEventListener('click', function(e) {
-                if (e.target.closest('.filter-option')) {
-                    const option = e.target.closest('.filter-option');
+                const option = e.target.closest('.filter-option');
+                if (option) {
                     const category = option.getAttribute('data-category');
                     const categoryName = option.querySelector('.category-name').textContent;
                     
@@ -1634,10 +1650,12 @@ async function increaseQuantity() {
                     option.classList.add('active');
                     
                     // Update active filter display
-                    const activeFilterLabel = activeFilters.querySelector('.active-filter-label');
-                    activeFilterLabel.innerHTML = `Showing: <strong>${categoryName}</strong>`;
+                    const activeFilterLabel = document.querySelector('.active-filter-label');
+                    if (activeFilterLabel) {
+                        activeFilterLabel.innerHTML = `Showing: <strong>${categoryName}</strong>`;
+                    }
                     
-                    // Filter products
+                    // Filter products - THIS IS THE FIX
                     displayProducts(category);
                     
                     // Close dropdown
@@ -1652,6 +1670,8 @@ async function increaseQuantity() {
             const shopProductsGrid = document.getElementById('shop-products');
             const noProductsDiv = document.getElementById('no-products');
             
+            if (!shopProductsGrid) return;
+            
             // Show loading spinner
             shopProductsGrid.innerHTML = `
                 <div class="loading-spinner">
@@ -1659,42 +1679,53 @@ async function increaseQuantity() {
                 </div>
             `;
             
-            // Simulate loading delay for better UX
             setTimeout(() => {
                 let filteredProducts = [];
                 
                 if (category === 'all') {
                     filteredProducts = products;
                 } else {
+                    // Filter by category - FIXED FILTERING LOGIC
                     filteredProducts = products.filter(product => {
-                        return product.category === category || product.tags.includes(category);
+                        const productCategory = (product.category || '').toLowerCase();
+                        const productTags = product.tags || [];
+                        const searchCategory = category.toLowerCase();
+                        
+                        return productCategory === searchCategory || 
+                            productTags.some(tag => tag.toLowerCase() === searchCategory) ||
+                            (product.name || product.title || '').toLowerCase().includes(searchCategory);
                     });
                 }
                 
                 if (filteredProducts.length === 0) {
                     shopProductsGrid.innerHTML = '';
-                    noProductsDiv.style.display = 'block';
-                    noProductsDiv.innerHTML = `
-                        <p>No products found in this category.</p>
-                        <p>Try selecting a different category from the filters above.</p>
-                    `;
+                    if (noProductsDiv) {
+                        noProductsDiv.style.display = 'block';
+                        noProductsDiv.innerHTML = `
+                            <p>No products found in "${category}" category.</p>
+                            <p>Try selecting "All Products" or a different category.</p>
+                        `;
+                    }
                 } else {
-                    noProductsDiv.style.display = 'none';
+                    if (noProductsDiv) {
+                        noProductsDiv.style.display = 'none';
+                    }
                     
                     const productsHTML = filteredProducts.map(product => {
                         const isOutOfStock = product.quantity === 0;
                         const imageUrl = product.imageUrl || product.image_url || '/images/placeholder.jpg';
+                        const productName = product.name || product.title || 'Unknown Product';
                         
                         return `
                             <div class="product-card">
-                                <div class="product-image" onclick="viewProductDetails('${product.name}')" 
+                                <div class="product-image" onclick="viewProductDetails('${productName}')" 
                                     style="background-image: url('${imageUrl}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                                 </div>
-                                <h3 onclick="viewProductDetails('${product.name}')">${product.name}</h3>
+                                <h3 onclick="viewProductDetails('${productName}')">${productName}</h3>
                                 <p class="price">USD $${product.price.toFixed(2)}</p>
                                 ${isOutOfStock ? 
                                     '<button class="add-to-cart" disabled style="background-color: #ccc; cursor: not-allowed;">Out of Stock</button>' : 
-                                    `<button class="add-to-cart" onclick="addToCartFromShop('${product.name}', ${product.price})">Add to Cart</button>`
+                                    `<button class="add-to-cart" onclick="addToCartFromShop('${productName}', ${product.price})">Add to Cart</button>`
                                 }
                             </div>
                         `;
