@@ -7,7 +7,11 @@
     <link rel="stylesheet" href="style.css?v=20250725-mobile-fix">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-</head>
+    <!-- Performance: Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="//your-api-trendyoft.store">
+    </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
@@ -1200,6 +1204,22 @@ async function increaseQuantity() {
     <script>
         // Cart functionality
         let cart = [];
+        // Performance: Cache products
+        let productsCache = null;
+        let cacheTimestamp = null;
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+        function getCachedProducts() {
+            if (productsCache && cacheTimestamp && (Date.now() - cacheTimestamp) < CACHE_DURATION) {
+                return productsCache;
+            }
+            return null;
+        }
+
+        function setCachedProducts(products) {
+            productsCache = products;
+            cacheTimestamp = Date.now();
+        }
         
         // Backend API Configuration
         const API_BASE_URL = 'https://trendyoft-website.onrender.com'; // Update with your backend API URL
@@ -1207,50 +1227,43 @@ async function increaseQuantity() {
         // Function to fetch products from backend API
         async function fetchProductsFromAPI() {
             try {
-                const response = await fetch(`${API_BASE_URL}/products/`);
+                // Show loading faster
+                showLoadingState();
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                
+                const response = await fetch(`${API_BASE_URL}/products/`, {
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Cache-Control': 'max-age=300' // 5 minute cache
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+                
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                
                 const apiProducts = await response.json();
                 
-                // Transform API data to match frontend format
-                return apiProducts.map(product => {
-                    // Determine tags based on product name and category
-                    let tags = [];
-                    
-                    // Trending items - Adventure and Mountain themed
-                    if (product.title.toLowerCase().includes('adventure') || product.title.toLowerCase().includes('mountain')) {
-                        tags.push('trending');
-                    }
-                    
-                    // New arrivals - Striped and Coral items
-                    if (product.title.toLowerCase().includes('striped') || product.title.toLowerCase().includes('coral')) {
-                        tags.push('new-arrivals');
-                    }
-                    
-                    // Sale items - Forest and Green themed
-                    if (product.title.toLowerCase().includes('forest') || product.title.toLowerCase().includes('green')) {
-                        tags.push('sale');
-                    }
-                    
-                    // Add base category to tags for easier filtering
-                    tags.push(product.category);
-                    
-                    return {
-                        id: product.id,
-                        name: product.title,
-                        price: product.price,
-                        category: product.category,
-                        tags: tags,
-                        image: getProductImageClass(product.title), // Use existing image classes
-                        imageUrl: product.image_url, // Direct Cloudinary URL
-                        description: product.description,
-                        quantity: product.quantity
-                    };
-                });
+                // Process products faster
+                return apiProducts.map(product => ({
+                    id: product.id,
+                    name: product.title,
+                    price: product.price,
+                    category: product.category,
+                    tags: [product.category],
+                    image: `product-${product.id}`,
+                    imageUrl: product.image_url,
+                    description: product.description,
+                    quantity: product.quantity
+                }));
+                
             } catch (error) {
-                console.error('Error fetching products from API:', error);
-                // Fallback to static products if API fails
+                console.error('API Error:', error);
                 return getStaticProducts();
             }
         }
@@ -1369,31 +1382,42 @@ async function increaseQuantity() {
         
         // Initialize products after DOM is loaded
         document.addEventListener('DOMContentLoaded', async function() {
-            // Show loading state
-            showLoadingState();
-            
-            // Fetch products from API
-            products = await fetchProductsFromAPI();
-            
-            // Fetch categories from API
-            await fetchAndUpdateCategories();
-            
-            // Update homepage with API products
-            updateHomepageProducts();
-            
-            // Initialize filter functionality
-            initializeFilterDropdown();
-            
-            // Hide loading state
-            hideLoadingState();
+            try {
+                // Check cache first
+                const cachedProducts = getCachedProducts();
+                if (cachedProducts) {
+                    products = cachedProducts;
+                    updateHomepageProducts();
+                    initializeFilterDropdown();
+                    hideLoadingState();
+                    return;
+                }
+                
+                // Otherwise fetch from API
+                showLoadingState();
+                products = await fetchProductsFromAPI();
+                setCachedProducts(products);
+                
+                await fetchAndUpdateCategories();
+                updateHomepageProducts();
+                initializeFilterDropdown();
+                hideLoadingState();
+                
+            } catch (error) {
+                console.error('Loading error:', error);
+                hideLoadingState();
+            }
             
             // Add Enter key support for promo code
-            document.getElementById('promo-code').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    applyPromoCode();
-                }
-            });
+            const promoInput = document.getElementById('promo-code');
+            if (promoInput) {
+                promoInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyPromoCode();
+                    }
+                });
+            }
         });
         
         // Product scrolling functionality
@@ -1464,56 +1488,44 @@ async function increaseQuantity() {
             const productsGrid = document.querySelector('.products-grid');
             if (!productsGrid || products.length === 0) return;
             
-            // Show all products from API
-            const productsHTML = products.map(product => {
+            // Use document fragment for better performance
+            const fragment = document.createDocumentFragment();
+            
+            products.forEach(product => {
                 const isOutOfStock = product.quantity === 0;
-                const imageUrl = product.imageUrl || product.image_url || '/images/placeholder.jpg';
+                const imageUrl = product.imageUrl || product.image_url || '';
                 
-                return `
-                    <div class="product-card modern">
-                        <div class="card-glow"></div>
-                        <div class="product-image-wrapper">
-                            <div class="product-image" onclick="viewProductDetails('${product.name}')" 
-                                style="background-image: url('${imageUrl}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
-                            </div>
-                            <div class="product-overlay">
-                                <button class="quick-view" onclick="viewProductDetails('${product.name}')">
-    
-                                </button>
-                            </div>
-                            <div class="product-badge ${isOutOfStock ? 'out-of-stock' : 'in-stock'}">
-                                ${isOutOfStock ? '❌ Out of Stock' : '✅ In Stock'}
-                            </div>
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card modern';
+                productCard.innerHTML = `
+                    <div class="card-glow"></div>
+                    <div class="product-image-wrapper">
+                        <div class="product-image" onclick="viewProductDetails('${product.name}')" 
+                            style="background-image: url('${imageUrl}');">
                         </div>
-                        <div class="product-info">
-                            <h3 class="product-title" onclick="viewProductDetails('${product.name}')">${product.name}</h3>
-                            <p class="product-description">${product.description || 'High quality product'}</p>
-                            <div class="product-rating">
-                                <div class="stars"></div>
-                                <span class="rating-count"></span>
+                        <div class="product-badge ${isOutOfStock ? 'out-of-stock' : 'in-stock'}">
+                            ${isOutOfStock ? '❌ Out of Stock' : '✅ In Stock'}
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" onclick="viewProductDetails('${product.name}')">${product.name}</h3>
+                        <p class="product-description">${product.description || 'High quality product'}</p>
+                        <div class="product-footer">
+                            <div class="price-section">
+                                <span class="price-current">USD $${product.price.toFixed(2)}</span>
                             </div>
-                            <div class="product-footer">
-                                <div class="price-section">
-                                    <span class="price-current">USD $${product.price.toFixed(2)}</span>
-                                </div>
-                                ${isOutOfStock ? 
-                                    '<button class="add-to-cart modern" disabled style="background-color: #ccc; cursor: not-allowed;">Out of Stock</button>' : 
-                                    `<button class="add-to-cart modern" onclick="addToCartFromHome('${product.name}', ${product.price})">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <circle cx="9" cy="21" r="1"></circle>
-                                            <circle cx="20" cy="21" r="1"></circle>
-                                            <path d="m1 1 4 4 14 2-14 5 14 2"></path>
-                                        </svg>
-                                        Add to Cart
-                                    </button>`
-                                }
-                            </div>
+                            ${isOutOfStock ? 
+                                '<button class="add-to-cart modern" disabled>Out of Stock</button>' : 
+                                `<button class="add-to-cart modern" onclick="addToCartFromHome('${product.name}', ${product.price})">Add to Cart</button>`
+                            }
                         </div>
                     </div>
                 `;
-            }).join('');
+                fragment.appendChild(productCard);
+            });
             
-            productsGrid.innerHTML = productsHTML;
+            productsGrid.innerHTML = '';
+            productsGrid.appendChild(fragment);
         }
         
         
