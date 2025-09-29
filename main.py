@@ -21,6 +21,8 @@ from contextlib import contextmanager
 import bcrypt
 import jwt
 from datetime import datetime, timedelta
+from functools import lru_cache
+from datetime import datetime, timedelta
 
 
 # Load environment variables from .env file
@@ -34,7 +36,7 @@ DB_CONFIG = {
     'password': os.getenv('db_password'),
     'database': os.getenv('database_name'),
     'charset': 'utf8mb4',
-    'autocommit': False,  # Changed to False for better transaction control
+    'autocommit': True,  # Changed to False for better transaction control
     'cursorclass': pymysql.cursors.DictCursor,
     'connect_timeout': 10,
     'read_timeout': 10,
@@ -292,6 +294,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Cache products for 5 minutes
+products_cache = None
+products_cache_time = None
+CACHE_DURATION = 300  # 5 minutes in seconds
+
 # Create images directory structure in /tmp if it doesn't exist
 IMAGES_DIR = "/tmp/images"
 THUMBNAIL_DIR = os.path.join(IMAGES_DIR, "thumbnails")
@@ -317,18 +324,51 @@ security = HTTPBearer()
 
 # Database helper functions
 def get_products_from_db():
-    """Fetch all products from database"""
+    """Fetch all products from database - OPTIMIZED"""
     with get_db_connection() as conn:
         cursor = conn.cursor()
+        # Only fetch necessary fields for listing
         cursor.execute("""
-            SELECT id, title, description, price, quantity, category, 
-                   image_full_url, image_main_url, image_thumb_url, 
-                   created_at, updated_at, is_active 
+            SELECT id, title, price, quantity, category, 
+                   image_thumb_url, image_main_url,
+                   is_active 
             FROM products 
             WHERE is_active = TRUE 
-            ORDER BY created_at DESC
+            ORDER BY id DESC
+            LIMIT 100
         """)
         return cursor.fetchall()
+
+def optimize_database():
+    """Add indexes for faster queries"""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Add indexes if they don't exist
+            try:
+                cursor.execute("CREATE INDEX idx_products_active ON products(is_active)")
+                logger.info("Created index on is_active")
+            except:
+                pass
+            
+            try:
+                cursor.execute("CREATE INDEX idx_products_category_active ON products(category, is_active)")
+                logger.info("Created index on category and is_active")
+            except:
+                pass
+                
+            conn.commit()
+    except Exception as e:
+        logger.warning(f"Could not optimize database: {e}")
+
+# Call this after init_database()
+try:
+    init_database()
+    optimize_database()  # ADD THIS LINE
+    logger.info("Database initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize database: {e}")
 
 def get_product_by_id(product_id: int):
     """Fetch a single product by ID from database"""
@@ -396,15 +436,12 @@ def delete_product_from_db(product_id: int):
         return cursor.rowcount > 0
 
 def get_categories_from_db():
-    """Get category statistics from database"""
+    """Get category statistics from database - OPTIMIZED"""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT category, 
-                   COUNT(*) as count,
-                   COUNT(*) as total_products,
-                   SUM(CASE WHEN quantity > 0 THEN 1 ELSE 0 END) as in_stock,
-                   SUM(CASE WHEN quantity = 0 THEN 1 ELSE 0 END) as out_of_stock
+                   COUNT(*) as count
             FROM products 
             WHERE is_active = TRUE 
             GROUP BY category 
@@ -412,15 +449,11 @@ def get_categories_from_db():
         """)
         categories = cursor.fetchall()
         
-        # Format for compatibility with existing API
         formatted_categories = []
         for cat in categories:
             formatted_categories.append({
                 'name': cat['category'],
-                'count': cat['count'],
-                'total_products': cat['total_products'],
-                'in_stock': cat['in_stock'],
-                'out_of_stock': cat['out_of_stock']
+                'count': cat['count']
             })
         
         return formatted_categories
@@ -1037,20 +1070,28 @@ async def api_info():
 @app.get("/products/", response_model=List[ProductResponse])
 async def get_products():
     """Get all products - Public endpoint for frontend"""
+    global products_cache, products_cache_time
+    
+    # Check cache first
+    if products_cache and products_cache_time:
+        if (datetime.now() - products_cache_time).total_seconds() < CACHE_DURATION:
+            logger.info("Returning cached products")
+            return products_cache
+    
     try:
-        # Try to get products from database first
+        # Get from database
         products = get_products_from_db()
-        # Format products to match expected response
+        
+        # Format products
         formatted_products = []
         for product in products:
-            # Handle NULL image values by providing empty strings as fallback
             image_main = product.get('image_main_url') or ''
             image_thumb = product.get('image_thumb_url') or ''
             image_full = product.get('image_full_url') or ''
             
             formatted_product = {
                 **product,
-                'image_url': image_main,  # Backward compatibility
+                'image_url': image_main,
                 'images': {
                     'thumbnail': image_thumb,
                     'main': image_main,
@@ -1061,29 +1102,19 @@ async def get_products():
                 'stock_status': 'In Stock' if product.get('quantity', 0) > 0 else 'Out of Stock'
             }
             formatted_products.append(formatted_product)
+        
+        # Update cache
+        products_cache = formatted_products
+        products_cache_time = datetime.now()
+        logger.info(f"Cached {len(formatted_products)} products")
+        
         return formatted_products
     except Exception as e:
-        logger.error(f"Error fetching products from database: {e}")
-        logger.info("Falling back to sample products")
-        # Fall back to sample products if database is not available
-        formatted_products = []
-        for product in products_db:
-            formatted_product = {
-                'id': hash(product['id']) % 1000000,  # Convert UUID to int for compatibility
-                'title': product['title'],
-                'price': product['price'],
-                'description': product['description'],
-                'quantity': product['quantity'],
-                'category': product['category'],
-                'image_url': product['image_url'],
-                'images': product['images'],
-                'created_at': product['created_at'],
-                'updated_at': None,
-                'is_active': True,
-                'stock_status': 'In Stock' if product['quantity'] > 0 else 'Out of Stock'
-            }
-            formatted_products.append(formatted_product)
-        return formatted_products
+        logger.error(f"Error fetching products: {e}")
+        # Return cached data if available, even if expired
+        if products_cache:
+            return products_cache
+        return []
 
 @app.get("/products/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: int):

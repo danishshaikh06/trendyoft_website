@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trendyoft - Modern Lifestyle Store</title>
-    <link rel="stylesheet" href="style.css?v=20250725-mobile-fix">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20250725-mobile-fix">
     <!-- Performance: Preload critical resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1328,49 +1328,13 @@ async function increaseQuantity() {
                 },
                 {
                     id: 'static-6',
-                    name: 'k',
-                    price: 25.99,
+                    name: 'Black Hoodie',
+                    price: 30.99,
                     category: 't-shirts',
                     tags: ['new-arrivals', 't-shirts'],
-                    image: 'product-6',
+                    image: '"C:\\Users\\shaik\\Downloads\\phone holder (1).jpg"',
                     description: 'Vibrant coral color that brightens any wardrobe.'
-                },
-                {
-                    id: 'static-7',
-                    name: 'kk',
-                    price: 25.99,
-                    category: 't-shirts',
-                    tags: ['new-arrivals', 't-shirts'],
-                    image: 'product-7',
-                    description: 'Vibrant coral color that brightens any wardrobe.'
-                },
-                {
-                    id: 'static-8',
-                    name: 'kkk',
-                    price: 25.99,
-                    category: 't-shirts',
-                    tags: ['new-arrivals', 't-shirts'],
-                    image: 'product-8',
-                    description: 'Vibrant coral color that brightens any wardrobe.'
-                },
-                {
-                    id: 'static-9',
-                    name: 'kkkk',
-                    price: 25.99,
-                    category: 't-shirts',
-                    tags: ['new-arrivals', 't-shirts'],
-                    image: 'product-9',
-                    description: 'Vibrant coral color that brightens any wardrobe.'
-                },
-                {
-                    id: 'static-10',
-                    name: 'kkkkk',
-                    price: 25.99,
-                    category: 't-shirts',
-                    tags: ['new-arrivals', 't-shirts'],
-                    image: 'product-10',
-                    description: 'Vibrant coral color that brightens any wardrobe.'
-                },
+                }
             ];
         }
 
@@ -1379,46 +1343,47 @@ async function increaseQuantity() {
         let products = [];
         let shopInitialized = false;
         let categoriesData = [];
-        
-        // Initialize products after DOM is loaded
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                // Check cache first
-                const cachedProducts = getCachedProducts();
-                if (cachedProducts) {
-                    products = cachedProducts;
-                    updateHomepageProducts();
-                    initializeFilterDropdown();
-                    hideLoadingState();
-                    return;
-                }
-                
-                // Otherwise fetch from API
-                showLoadingState();
-                products = await fetchProductsFromAPI();
-                setCachedProducts(products);
-                
-                await fetchAndUpdateCategories();
-                updateHomepageProducts();
-                initializeFilterDropdown();
-                hideLoadingState();
-                
-            } catch (error) {
-                console.error('Loading error:', error);
-                hideLoadingState();
-            }
+
+        // Show placeholder products immediately
+        function showPlaceholderProducts() {
+            const productsGrid = document.querySelector('.products-grid');
+            if (!productsGrid) return;
             
-            // Add Enter key support for promo code
-            const promoInput = document.getElementById('promo-code');
-            if (promoInput) {
-                promoInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        applyPromoCode();
-                    }
+            const placeholders = Array(4).fill(0).map(() => `
+                <div class="product-card" style="opacity: 0.5;">
+                    <div class="product-image" style="background: #e5e7eb; animation: pulse 1.5s infinite;"></div>
+                    <div class="product-info">
+                        <h3 style="background: #e5e7eb; height: 20px; width: 80%;"></h3>
+                        <div class="product-footer">
+                            <span style="background: #e5e7eb; height: 20px; width: 60px; display: block;"></span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            productsGrid.innerHTML = placeholders;
+        }
+
+        // Update DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            showPlaceholderProducts(); // Show immediately
+            
+            const cachedProducts = getCachedProducts();
+            if (cachedProducts) {
+                products = cachedProducts;
+                updateHomepageProducts();
+            } else {
+                fetchProductsFromAPI().then(fetchedProducts => {
+                    products = fetchedProducts;
+                    setCachedProducts(products);
+                    updateHomepageProducts();
                 });
             }
         });
+
+
+        // Initialize products after DOM is loaded
+        
         
         // Product scrolling functionality
         function scrollProducts(direction) {
