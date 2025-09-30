@@ -324,20 +324,39 @@ security = HTTPBearer()
 
 # Database helper functions
 def get_products_from_db():
-    """Fetch all products from database - OPTIMIZED"""
+    """Fetch all products from database - OPTIMIZED FOR SPEED"""
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        # Only fetch necessary fields for listing
+        # Fetch minimal data with optimized images
         cursor.execute("""
-            SELECT id, title, price, quantity, category, 
-                   image_thumb_url, image_main_url,
-                   is_active 
+            SELECT 
+                id, 
+                title, 
+                price, 
+                quantity, 
+                category, 
+                image_thumb_url,
+                is_active 
             FROM products 
             WHERE is_active = TRUE 
             ORDER BY id DESC
-            LIMIT 100
+            LIMIT 50
         """)
-        return cursor.fetchall()
+        products = cursor.fetchall()
+        
+        # Add optimized image URLs
+        for product in products:
+            if product.get('image_thumb_url'):
+                # Optimize Cloudinary URLs
+                thumb_url = product['image_thumb_url']
+                if 'cloudinary.com' in thumb_url and '/upload/' in thumb_url:
+                    # Add transformation parameters for smaller, optimized images
+                    product['image_thumb_url'] = thumb_url.replace(
+                        '/upload/', 
+                        '/upload/w_300,h_300,c_fill,q_auto:low,f_auto/'
+                    )
+        
+        return products
 
 def optimize_database():
     """Add indexes for faster queries"""
@@ -1069,53 +1088,49 @@ async def api_info():
 
 @app.get("/products/", response_model=List[ProductResponse])
 async def get_products():
-    """Get all products - Public endpoint for frontend"""
+    """Get all products - OPTIMIZED FOR LCP"""
     global products_cache, products_cache_time
     
-    # Check cache first
+    # Check cache
     if products_cache and products_cache_time:
         if (datetime.now() - products_cache_time).total_seconds() < CACHE_DURATION:
-            logger.info("Returning cached products")
             return products_cache
     
     try:
-        # Get from database
         products = get_products_from_db()
         
-        # Format products
+        # Minimal formatting for speed
         formatted_products = []
         for product in products:
-            image_main = product.get('image_main_url') or ''
-            image_thumb = product.get('image_thumb_url') or ''
-            image_full = product.get('image_full_url') or ''
-            
-            formatted_product = {
-                **product,
-                'image_url': image_main,
+            formatted_products.append({
+                'id': product['id'],
+                'title': product['title'],
+                'price': float(product['price']),
+                'quantity': product['quantity'],
+                'category': product['category'],
+                'image_url': product.get('image_thumb_url', ''),
+                'image_thumb_url': product.get('image_thumb_url', ''),
                 'images': {
-                    'thumbnail': image_thumb,
-                    'main': image_main,
-                    'original': image_full
+                    'thumbnail': product.get('image_thumb_url', ''),
+                    'main': product.get('image_thumb_url', ''),
+                    'original': product.get('image_thumb_url', '')
                 },
-                'created_at': product['created_at'].isoformat() if product.get('created_at') else '',
-                'updated_at': product['updated_at'].isoformat() if product.get('updated_at') else None,
-                'stock_status': 'In Stock' if product.get('quantity', 0) > 0 else 'Out of Stock'
-            }
-            formatted_products.append(formatted_product)
+                'description': '',  # Don't send description on list
+                'created_at': '',
+                'updated_at': None,
+                'is_active': True,
+                'stock_status': 'In Stock' if product['quantity'] > 0 else 'Out of Stock'
+            })
         
-        # Update cache
+        # Cache it
         products_cache = formatted_products
         products_cache_time = datetime.now()
-        logger.info(f"Cached {len(formatted_products)} products")
         
         return formatted_products
     except Exception as e:
-        logger.error(f"Error fetching products: {e}")
-        # Return cached data if available, even if expired
-        if products_cache:
-            return products_cache
-        return []
-
+        logger.error(f"Error: {e}")
+        return products_cache if products_cache else []
+        
 @app.get("/products/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: int):
     """Get a specific product by ID - Public endpoint"""
