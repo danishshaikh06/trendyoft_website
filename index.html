@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trendyoft - Modern Lifestyle Store</title>
+    <link rel="preconnect" href="https://res.cloudinary.com">
+    <link rel="dns-prefetch" href="//res.cloudinary.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=20250725-mobile-fix">
@@ -1278,66 +1280,7 @@ async function increaseQuantity() {
         }
         
         // Fallback static products (in case API is not available)
-        function getStaticProducts() {
-            return [
-                {
-                    id: 'static-1',
-                    name: 'Striped Adventure Tee',
-                    price: 19.99 ,
-                    category: 't-shirts',
-                    tags: ['trending', 't-shirts'],
-                    image: 'product-1',
-                    description: 'Perfect for outdoor adventures with its comfortable striped design.'
-                },
-                {
-                    id: 'static-2',
-                    name: 'Mountain Sunset Shirt',
-                    price: 19.99,
-                    category: 'shirts',
-                    tags: ['trending', 'shirts'],
-                    image: 'product-2',
-                    description: 'Inspired by beautiful mountain sunsets, this shirt combines style with functionality.'
-                },
-                {
-                    id: 'static-3',
-                    name: 'Forest Green Classic',
-                    price: 19.99,
-                    category: 't-shirts',
-                    tags: ['sale', 't-shirts'],
-                    image: 'product-3',
-                    description: 'A timeless forest green design that never goes out of style.'
-                },
-                {
-                    id: 'static-4',
-                    name: 'Coral Comfort Tee',
-                    price: 19.99,
-                    category: 't-shirts',
-                    tags: ['new-arrivals', 't-shirts'],
-                    image: 'product-4',
-                    description: 'Vibrant coral color that brightens any wardrobe.'
-                },
-
-                {
-                    id: 'static-5',
-                    name: 'Ocean Green Hodieee',
-                    price: 25.99,
-                    category: 't-shirts',
-                    tags: ['new-arrivals', 't-shirts'],
-                    image: '"C:\\Users\\shaik\\Downloads\\phone holder (1).jpg"',
-                    description: 'Vibrant coral color that brightens any wardrobe.'
-                },
-                {
-                    id: 'static-6',
-                    name: 'Black Hoodie',
-                    price: 30.99,
-                    category: 't-shirts',
-                    tags: ['new-arrivals', 't-shirts'],
-                    image: '"C:\\Users\\shaik\\Downloads\\phone holder (1).jpg"',
-                    description: 'Vibrant coral color that brightens any wardrobe.'
-                }
-            ];
-        }
-
+        
         
         // Get products dynamically
         let products = [];
@@ -1366,21 +1309,47 @@ async function increaseQuantity() {
 
         // Update DOMContentLoaded
         document.addEventListener('DOMContentLoaded', async function() {
-            showPlaceholderProducts(); // Show immediately
+            // Don't wait - load immediately
+            loadProductsImmediately();
             
-            const cachedProducts = getCachedProducts();
-            if (cachedProducts) {
-                products = cachedProducts;
-                updateHomepageProducts();
-            } else {
-                fetchProductsFromAPI().then(fetchedProducts => {
-                    products = fetchedProducts;
-                    setCachedProducts(products);
-                    updateHomepageProducts();
+            // Initialize other features
+            initializeFilterDropdown();
+            
+            // Add promo code support
+            const promoInput = document.getElementById('promo-code');
+            if (promoInput) {
+                promoInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyPromoCode();
+                    }
                 });
             }
         });
 
+// NEW FUNCTION - Load products immediately
+        async function loadProductsImmediately() {
+            const cachedProducts = getCachedProducts();
+            
+            if (cachedProducts && cachedProducts.length > 0) {
+                // Use cache immediately
+                products = cachedProducts;
+                updateHomepageProducts();
+                fetchAndUpdateCategories();
+            } else {
+                // Fetch and display as soon as data arrives
+                try {
+                    products = await fetchProductsFromAPI();
+                    if (products.length > 0) {
+                        setCachedProducts(products);
+                        updateHomepageProducts();
+                        fetchAndUpdateCategories();
+                    }
+                } catch (error) {
+                    console.error('Failed to load products:', error);
+                }
+            }
+        }
 
         // Initialize products after DOM is loaded
         
@@ -1448,18 +1417,17 @@ async function increaseQuantity() {
             // Loading will be replaced by actual products
         }
         
-        // Update homepage products with API data
+       
+        // Update homepage products with API data - OPTIMIZED FOR SPEED
         function updateHomepageProducts() {
             const productsGrid = document.querySelector('.products-grid');
             if (!productsGrid || products.length === 0) return;
             
-            // Use document fragment for better performance
-            const fragment = document.createDocumentFragment();
-            
-            products.forEach(product => {
+            // FASTER: Direct innerHTML instead of fragment
+            productsGrid.innerHTML = products.map(product => {
                 const isOutOfStock = product.quantity === 0;
-                const imageUrl = product.imageUrl || product.image_url || '';
                 
+<<<<<<< HEAD
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card modern';
                 productCard.innerHTML = `
@@ -1478,19 +1446,46 @@ async function increaseQuantity() {
                         <div class="product-footer">
                             <div class="price-section">
                                 <span class="price-current">INR ₹${product.price.toFixed(2)}</span>
+=======
+                // Use thumbnail for faster loading
+                let imageUrl = product.image_thumb_url || product.imageUrl || product.image_url || '';
+                
+                // Optimize Cloudinary images
+                if (imageUrl && imageUrl.includes('cloudinary.com') && imageUrl.includes('/upload/')) {
+                    imageUrl = imageUrl.replace('/upload/', '/upload/w_300,h_300,c_fill,q_auto:low,f_auto/');
+                }
+                
+                // Escape product name for onclick
+                const escapedName = product.name.replace(/'/g, "\\'");
+                
+                return `
+                    <div class="product-card modern">
+                        <div class="card-glow"></div>
+                        <div class="product-image-wrapper">
+                            <div class="product-image" onclick="viewProductDetails('${escapedName}')" 
+                                style="background-image: url('${imageUrl}');">
                             </div>
-                            ${isOutOfStock ? 
-                                '<button class="add-to-cart modern" disabled>Out of Stock</button>' : 
-                                `<button class="add-to-cart modern" onclick="addToCartFromHome('${product.name}', ${product.price})">Add to Cart</button>`
-                            }
+                            <div class="product-badge ${isOutOfStock ? 'out-of-stock' : 'in-stock'}">
+                                ${isOutOfStock ? '❌ Out of Stock' : '✅ In Stock'}
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title" onclick="viewProductDetails('${escapedName}')">${product.name}</h3>
+                            <p class="product-description">${product.description || 'High quality product'}</p>
+                            <div class="product-footer">
+                                <div class="price-section">
+                                    <span class="price-current">INR ₹${product.price.toFixed(2)}</span>
+                                </div>
+                                ${isOutOfStock ? 
+                                    '<button class="add-to-cart modern" disabled>Out of Stock</button>' : 
+                                    `<button class="add-to-cart modern" onclick="addToCartFromHome('${escapedName}', ${product.price})">Add to Cart</button>`
+                                }
+>>>>>>> 31c8a54 (Speed)
+                            </div>
                         </div>
                     </div>
                 `;
-                fragment.appendChild(productCard);
-            });
-            
-            productsGrid.innerHTML = '';
-            productsGrid.appendChild(fragment);
+            }).join('');
         }
         
         
