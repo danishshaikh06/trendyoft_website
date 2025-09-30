@@ -1427,26 +1427,6 @@ async function increaseQuantity() {
             productsGrid.innerHTML = products.map(product => {
                 const isOutOfStock = product.quantity === 0;
                 
-<<<<<<< HEAD
-                const productCard = document.createElement('div');
-                productCard.className = 'product-card modern';
-                productCard.innerHTML = `
-                    <div class="card-glow"></div>
-                    <div class="product-image-wrapper">
-                        <div class="product-image" onclick="viewProductDetails('${product.name}')" 
-                            style="background-image: url('${imageUrl}');">
-                        </div>
-                        <div class="product-badge ${isOutOfStock ? 'out-of-stock' : 'in-stock'}">
-                            ${isOutOfStock ? '❌ Out of Stock' : '✅ In Stock'}
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title" onclick="viewProductDetails('${product.name}')">${product.name}</h3>
-                        <p class="product-description">${product.description || 'High quality product'}</p>
-                        <div class="product-footer">
-                            <div class="price-section">
-                                <span class="price-current">INR ₹${product.price.toFixed(2)}</span>
-=======
                 // Use thumbnail for faster loading
                 let imageUrl = product.image_thumb_url || product.imageUrl || product.image_url || '';
                 
@@ -1480,14 +1460,12 @@ async function increaseQuantity() {
                                     '<button class="add-to-cart modern" disabled>Out of Stock</button>' : 
                                     `<button class="add-to-cart modern" onclick="addToCartFromHome('${escapedName}', ${product.price})">Add to Cart</button>`
                                 }
->>>>>>> 31c8a54 (Speed)
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
-        
         
         // Initialize shop page
         function initializeShopPage() {
