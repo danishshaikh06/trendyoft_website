@@ -3755,3 +3755,47 @@ a:focus {
     content-visibility: auto;
     contain-intrinsic-size: 70vh;
 }
+
+/* FIX CLS: Reserve space for images to prevent layout shift */
+.product-image {
+    aspect-ratio: 1 / 1;
+    min-height: 200px;
+}
+
+.product-card {
+    contain: layout style paint;
+}
+
+.product-info {
+    min-height: 150px;
+}
+
+.main-product-image {
+    aspect-ratio: 4 / 3;
+    min-height: 400px;
+}
+
+/* Reserve space for hero section */
+.hero {
+    min-height: 70vh;
+}
+
+/* Prevent font swap layout shift */
+body {
+    font-display: swap;
+}
+
+/* Reserve button height */
+.add-to-cart {
+    min-height: 44px;
+}
+
+/* Prevent navbar shift */
+.navbar {
+    height: 70px;
+}
+
+/* Reserve product card height */
+.product-card.modern {
+    min-height: 420px;
+}
