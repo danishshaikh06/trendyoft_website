@@ -3740,3 +3740,18 @@ a:focus {
     display: flex !important;
     flex-direction: column !important;
 }
+
+/* CRITICAL: Optimize image loading */
+.product-image {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-color: #f0f0f0;
+    content-visibility: auto;
+}
+
+/* Reduce initial page weight */
+.hero {
+    content-visibility: auto;
+    contain-intrinsic-size: 70vh;
+}
