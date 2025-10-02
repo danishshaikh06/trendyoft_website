@@ -1280,7 +1280,46 @@ async function increaseQuantity() {
         }
         
         // Fallback static products (in case API is not available)
-        
+        function getStaticProducts() {
+            return [
+                {
+                    id: 'static-1',
+                    name: 'Striped Adventure Tee',
+                    price: 19.99 ,
+                    category: 't-shirts',
+                    tags: ['trending', 't-shirts'],
+                    image: 'product-1',
+                    description: 'Perfect for outdoor adventures with its comfortable striped design.'
+                },
+                {
+                    id: 'static-2',
+                    name: 'Mountain Sunset Shirt',
+                    price: 19.99,
+                    category: 'shirts',
+                    tags: ['trending', 'shirts'],
+                    image: 'product-2',
+                    description: 'Inspired by beautiful mountain sunsets, this shirt combines style with functionality.'
+                },
+                {
+                    id: 'static-3',
+                    name: 'Forest Green Classic',
+                    price: 19.99,
+                    category: 't-shirts',
+                    tags: ['sale', 't-shirts'],
+                    image: 'product-3',
+                    description: 'A timeless forest green design that never goes out of style.'
+                },
+                {
+                    id: 'static-4',
+                    name: 'Coral Reef Vibes',
+                    price: 19.99,
+                    category: 'shirts',
+                    tags: ['new', 'shirts'],
+                    image: 'product-4',
+                    description: 'Bring the vibrant colors of coral reefs to your wardrobe with this eye-catching shirt.'
+                }
+            ];
+         }          
         
         // Get products dynamically
         let products = [];
